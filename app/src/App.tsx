@@ -1,6 +1,67 @@
+import { useEffect, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
+import { supabase } from './lib/supabase'
+import Login from './components/Login'
 import './App.css'
 
 function App() {
+  const [session, setSession] = useState<Session | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [projectCount, setProjectCount] = useState(0)
+
+  useEffect(() => {
+    async function loadSession() {
+      const { data } = await supabase.auth.getSession()
+
+      setSession(data.session)
+      setAuthLoading(false)
+    }
+
+    loadSession()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    if (!session) {
+      setProjectCount(0)
+      return
+    }
+
+    async function loadProjects() {
+      const { count, error } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+
+      if (error) {
+        console.error('Project query failed:', error)
+        return
+      }
+
+      setProjectCount(count ?? 0)
+    }
+
+    loadProjects()
+  }, [session])
+
+  async function signOut() {
+    await supabase.auth.signOut()
+  }
+
+  if (authLoading) {
+    return <div className="loading-screen">Opening MichaelOS…</div>
+  }
+
+  if (!session) {
+    return <Login />
+  }
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -23,6 +84,10 @@ function App() {
           <button className="nav-item">Weekly Review</button>
           <button className="nav-item">Health</button>
         </nav>
+
+        <button className="sign-out" onClick={signOut}>
+          Sign out
+        </button>
       </aside>
 
       <main className="main-content">
@@ -44,7 +109,7 @@ function App() {
         <section className="metric-grid">
           <div className="metric-card">
             <span>Active Projects</span>
-            <strong>6</strong>
+            <strong>{projectCount}</strong>
           </div>
 
           <div className="metric-card">
@@ -69,8 +134,9 @@ function App() {
           <h2>Protect your highest-leverage work.</h2>
 
           <p>
-            MichaelOS is now running on the production React foundation.
-            Next we'll connect this shell to your live Supabase data.
+            MichaelOS is authenticated and connected to your private operating
+            data. Next we'll turn the live project portfolio into the first
+            actionable executive brief.
           </p>
         </section>
       </main>

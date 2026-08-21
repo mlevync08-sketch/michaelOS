@@ -228,3 +228,129 @@ select {
     grid-template-columns: 1fr;
   }
 }
+
+.login-page,
+.loading-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #f5f7f6;
+}
+
+.loading-screen {
+  color: #607780;
+  font-size: 14px;
+}
+
+.login-card {
+  width: min(440px, calc(100vw - 40px));
+  padding: 38px;
+  background: #ffffff;
+  border: 1px solid #e1e8e8;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(21, 52, 63, 0.08);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 42px;
+}
+
+.login-brand strong,
+.login-brand span {
+  display: block;
+}
+
+.login-brand span {
+  margin-top: 3px;
+  color: #82969d;
+  font-size: 10px;
+}
+
+.login-copy h1 {
+  margin: 7px 0;
+  color: #17323e;
+  font-size: 36px;
+  letter-spacing: -0.04em;
+}
+
+.login-copy > p:last-child {
+  margin: 0 0 28px;
+  color: #72868e;
+}
+
+.login-card form {
+  display: grid;
+  gap: 18px;
+}
+
+.login-card label {
+  display: grid;
+  gap: 7px;
+  color: #50666f;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid #d8e1e3;
+  border-radius: 9px;
+  outline: none;
+  color: #17323e;
+  background: white;
+}
+
+.login-card input:focus {
+  border-color: #57c7b8;
+  box-shadow: 0 0 0 3px rgba(87, 199, 184, 0.12);
+}
+
+.login-button {
+  margin-top: 4px;
+  border: 0;
+  border-radius: 9px;
+  padding: 13px;
+  background: #0b4658;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+}
+
+.login-error {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  color: #a84848;
+  font-size: 12px;
+}
+
+.sidebar {
+  position: relative;
+}
+
+.sign-out {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 24px;
+  padding: 10px 13px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #7597a2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sign-out:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
