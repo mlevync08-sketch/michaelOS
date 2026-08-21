@@ -1,8 +1,19 @@
-exports.handler = async () => ({
-  statusCode: 200,
-  headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  body: JSON.stringify({
-    supabaseUrl: process.env.SUPABASE_URL || '',
-    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
+export default async () => {
+  const url = process.env.SUPABASE_URL
+  const anonKey = process.env.SUPABASE_ANON_KEY
+
+  if (!url || !anonKey) {
+    return new Response(JSON.stringify({ error: 'MichaelOS is missing Supabase configuration.' }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' },
+    })
+  }
+
+  return new Response(JSON.stringify({ supabaseUrl: url, supabaseAnonKey: anonKey }), {
+    status: 200,
+    headers: {
+      'content-type': 'application/json',
+      'cache-control': 'public, max-age=300',
+    },
   })
-});
+}

@@ -1,45 +1,13 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MichaelOS</title><link rel="stylesheet" href="styles.css"></head>
-<body>
-<div id="login" class="login open">
-  <div class="login-card"><div class="eyebrow">Private Executive OS</div><div class="title">MichaelOS</div><div class="sub">Your work, decisions, relationships and health in one operating system.</div>
-    <form id="loginForm" class="form"><div><label>Email<input id="email" type="email" placeholder="you@example.com" required></label></div><div><label>Password<input id="password" type="password" placeholder="••••••••" required></label></div><button class="btn primary" type="submit">Sign in</button></form>
-    <div id="loginNotice" class="notice">Sign in with your Supabase account. Demo mode remains available for local review.</div><button id="demoBtn" class="btn" style="width:100%;margin-top:10px">Enter demo</button>
-  </div>
-</div>
-<div id="app" class="app" style="display:none">
-  <aside class="sidebar"><div><div class="brand">MichaelOS</div><div class="brand-sub">Chief of Staff</div></div>
-    <nav class="nav" id="nav">
-      <button data-view="today" class="active">◎ <span>Today</span></button>
-      <button data-view="projects">◫ <span>Projects</span></button>
-      <button data-view="actions">✓ <span>Actions</span></button>
-      <button data-view="relationships">♧ <span>Relationships</span></button>
-      <button data-view="waiting">◷ <span>Waiting On</span></button>
-      <button data-view="decisions">◇ <span>Decisions</span></button>
-      <button data-view="weekly">▦ <span>Weekly Review</span></button>
-      <button data-view="health">♥ <span>Health</span></button>
-      <button data-view="strategy">△ <span>Strategy</span></button>
-      <button data-view="radar">◉ <span>Executive Radar</span></button>
-      <button data-view="warroom">⚑ <span>War Room</span></button>
-      <button data-view="knowledge">⌕ <span>Knowledge</span></button>
-    </nav><div class="sidebar-foot">V1.4 · Persistent<br><span id="modeLabel">Connecting…</span><br><button id="signOutBtn" class="sidebar-signout" style="display:none">Sign out</button></div>
-  </aside>
-  <main class="main">
-    <section id="today" class="view active"></section>
-    <section id="projects" class="view"></section>
-    <section id="actions" class="view"></section>
-    <section id="relationships" class="view"></section>
-    <section id="waiting" class="view"></section>
-    <section id="decisions" class="view"></section>
-    <section id="weekly" class="view"></section>
-    <section id="health" class="view"></section>
-    <section id="strategy" class="view"></section>
-    <section id="radar" class="view"></section>
-    <section id="warroom" class="view"></section>
-    <section id="knowledge" class="view"></section>
-  </main>
-</div>
-<div id="modal" class="modal"><div class="modal-card"><h3 id="modalTitle">Add item</h3><div class="sub" id="modalSub"></div><form id="itemForm" class="form"></form><div class="modal-actions"><button id="cancelModal" class="btn">Cancel</button><button id="saveModal" class="btn primary">Save</button></div></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
-</body></html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f7f8" />
+    <title>MichaelOS</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

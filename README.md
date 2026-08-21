@@ -1,74 +1,55 @@
-# MichaelOS V1.4 — Persistent Build
+# MichaelOS — Sprint 1 Production Foundation
 
-V1.4 converts the local demo into a Supabase-backed application while preserving Demo Mode.
+Release 0.2 converts the validated static prototype into a React + TypeScript application connected to the existing Supabase project and deployed by Netlify.
 
-## What's new
+## What Sprint 1 includes
 
+- React + TypeScript + Tailwind production frontend
 - Supabase email/password authentication
-- Persistent Projects, Actions, Waiting On, Decisions, Relationships, and Health data
-- Row Level Security tied to the signed-in user
-- Automatic starter-portfolio import on first successful login
-- Edit project records from the project workspace
-- Mark actions complete
-- Mark decisions decided
-- Sign out
-- Demo Mode still works without Supabase
+- Live reads from `projects`, `actions`, `decisions`, `relationships`, and `waiting_on`
+- Executive Today dashboard built from live portfolio data
+- Live Projects workspace
+- Netlify configuration endpoint for the public Supabase URL and publishable key
+- Existing Supabase schema and seed SQL retained under `/supabase`
+- SPA redirects and continuous deployment configuration
 
-## Run locally in Demo Mode
+## Netlify environment variables
 
-```bash
-npm install
-npm run dev
-```
+These should already exist in Netlify:
 
-Open the Netlify Dev URL (normally `http://localhost:8888`) and click **Enter demo**.
+- `SUPABASE_URL` — e.g. `https://YOUR_PROJECT.supabase.co`
+- `SUPABASE_ANON_KEY` — the `sb_publishable_...` key
 
-## Connect Supabase
+Do not add a service-role or secret Supabase key to browser code.
 
-### 1. Create/open a Supabase project
+## Deploy into the existing GitHub repository
 
-In Supabase, open **SQL Editor**, paste the entire contents of `supabase-schema.sql`, and run it once. The file is safe to run over an earlier MichaelOS schema because the upgrade statements use `if not exists` where needed.
+1. In GitHub Desktop, choose **Repository → Show in Finder**.
+2. Make a safety copy of the current repository folder if desired.
+3. Copy the contents of this Sprint 1 folder into the repository root, replacing the old prototype files when prompted.
+4. GitHub Desktop should show the React production files as additions/changes/deletions.
+5. Commit with: `Release 0.2 - production foundation`
+6. Push origin.
+7. Netlify will run `npm run build` and publish `/dist` automatically.
+8. Open the Netlify deploy log. Confirm the build is green.
+9. Open the production URL and sign in using the user you created in Supabase Authentication.
 
-### 2. Create your login
+## Local development
 
-In Supabase go to **Authentication → Users → Add user**. Create the email/password you want to use for MichaelOS.
+Because `/api/config` is a Netlify Function, the most accurate local runtime uses Netlify CLI. Plain `npm run dev` will render the frontend but the config endpoint will not be available unless proxied.
 
-### 3. Configure local environment variables
+For this Sprint, production deployment through Netlify is the recommended test path.
 
-Copy `.env.example` to `.env`:
+## Acceptance test
 
-```bash
-cp .env.example .env
-```
+After login:
 
-Then edit `.env`:
+1. Today should show 6 active projects from Supabase.
+2. The Projects page should show GTM Command Center, SAVi, Velocity / VHL, Babson Diagnostics, PlasticBegone, and Bluedoor.
+3. Refresh should reload live data without logging you out.
+4. Sign out should return to the private login screen.
+5. A user without a valid Supabase login should not be able to access the application data.
 
-```text
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
-OPENAI_API_KEY=YOUR_OPENAI_API_KEY
-```
+## Sprint 1 next increment
 
-The OpenAI key is reserved for the next AI Brief release and is not exposed to the browser.
-
-### 4. Start MichaelOS
-
-```bash
-npm run dev
-```
-
-Sign in with the Supabase user you created. The first successful login automatically imports the starter portfolio into your private Supabase tables.
-
-## Deploy to Netlify
-
-Create a Netlify site from this folder/repository. In **Site configuration → Environment variables**, add:
-
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-- `OPENAI_API_KEY` (reserved for AI Brief)
-
-The included `netlify.toml` publishes the app and enables Netlify Functions. `netlify/functions/config.js` exposes only the Supabase URL and anon key, both of which are designed to be public client configuration. Never expose the Supabase service-role key.
-
-## Data protection
-
-All live tables use Supabase Row Level Security. Every row is scoped to `auth.uid()`. Demo Mode remains local to the browser via localStorage and does not sync to Supabase.
+After this foundation is live, the next increment is full CRUD: create/edit projects, create/complete actions, resolve decisions, relationship updates, and persistent Health records.
