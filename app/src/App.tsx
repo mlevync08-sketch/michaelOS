@@ -4,15 +4,27 @@ import { supabase } from './lib/supabase'
 import Login from './components/Login'
 import './App.css'
 
+type Project = {
+  id: string
+  name: string
+  status: string
+  health: string
+  priority: string
+  next_milestone: string | null
+  blocker: string | null
+  next_action: string | null
+  owner: string | null
+}
+
 function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
-  const [projectCount, setProjectCount] = useState(0)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [projectsLoading, setProjectsLoading] = useState(false)
 
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession()
-
       setSession(data.session)
       setAuthLoading(false)
     }
@@ -30,21 +42,27 @@ function App() {
 
   useEffect(() => {
     if (!session) {
-      setProjectCount(0)
+      setProjects([])
       return
     }
 
     async function loadProjects() {
-      const { count, error } = await supabase
+      setProjectsLoading(true)
+
+      const { data, error } = await supabase
         .from('projects')
-        .select('*', { count: 'exact', head: true })
+        .select(
+          'id,name,status,health,priority,next_milestone,blocker,next_action,owner'
+        )
+        .order('name')
 
       if (error) {
         console.error('Project query failed:', error)
-        return
+      } else {
+        setProjects(data ?? [])
       }
 
-      setProjectCount(count ?? 0)
+      setProjectsLoading(false)
     }
 
     loadProjects()
@@ -61,6 +79,14 @@ function App() {
   if (!session) {
     return <Login />
   }
+
+  const criticalCount = projects.filter(
+    (project) => project.priority === 'critical'
+  ).length
+
+  const attentionCount = projects.filter(
+    (project) => project.health === 'amber' || project.health === 'red'
+  ).length
 
   return (
     <div className="app-shell">
@@ -109,17 +135,17 @@ function App() {
         <section className="metric-grid">
           <div className="metric-card">
             <span>Active Projects</span>
-            <strong>{projectCount}</strong>
+            <strong>{projectsLoading ? '—' : projects.length}</strong>
           </div>
 
           <div className="metric-card">
             <span>Critical</span>
-            <strong>3</strong>
+            <strong>{projectsLoading ? '—' : criticalCount}</strong>
           </div>
 
           <div className="metric-card">
             <span>Needs Attention</span>
-            <strong>3</strong>
+            <strong>{projectsLoading ? '—' : attentionCount}</strong>
           </div>
 
           <div className="metric-card">
@@ -134,10 +160,67 @@ function App() {
           <h2>Protect your highest-leverage work.</h2>
 
           <p>
-            MichaelOS is authenticated and connected to your private operating
-            data. Next we'll turn the live project portfolio into the first
-            actionable executive brief.
+            Your live portfolio is now connected. Projects requiring attention
+            are surfaced directly from your private operating data.
           </p>
+        </section>
+
+        <section className="portfolio-section">
+          <div className="portfolio-header">
+            <div>
+              <p className="section-label">ACTIVE PORTFOLIO</p>
+              <h2>Projects</h2>
+            </div>
+
+            <span>{projects.length} active</span>
+          </div>
+
+          {projectsLoading ? (
+            <div className="portfolio-loading">Loading portfolio…</div>
+          ) : (
+            <div className="project-grid">
+              {projects.map((project) => (
+                <article className="project-card" key={project.id}>
+                  <div className="project-card-top">
+                    <div className="project-health">
+                      <span
+                        className={`health-dot ${project.health}`}
+                      />
+                      <span>{project.health}</span>
+                    </div>
+
+                    <span className={`priority-badge ${project.priority}`}>
+                      {project.priority}
+                    </span>
+                  </div>
+
+                  <h3>{project.name}</h3>
+
+                  <div className="project-detail">
+                    <span>Next milestone</span>
+                    <strong>{project.next_milestone || 'Not set'}</strong>
+                  </div>
+
+                  <div className="project-detail">
+                    <span>Critical action</span>
+                    <strong>{project.next_action || 'Not set'}</strong>
+                  </div>
+
+                  {project.blocker && project.blocker !== 'None' && (
+                    <div className="project-blocker">
+                      <span>Blocker</span>
+                      <strong>{project.blocker}</strong>
+                    </div>
+                  )}
+
+                  <div className="project-footer">
+                    <span>{project.owner || 'Unassigned'}</span>
+                    <span>{project.status}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </div>
