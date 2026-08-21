@@ -1,0 +1,16 @@
+{
+  "name": "michaelos-v1",
+  "version": "1.4.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx netlify dev",
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  },
+  "devDependencies": {
+    "netlify-cli": "^18.0.0",
+    "serve": "^14.2.3"
+  }
+}
