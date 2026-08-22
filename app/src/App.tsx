@@ -3,6 +3,8 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import Login from './components/Login'
 import './App.css'
+import ChiefOfStaffBrief from './components/ChiefOfStaffBrief'
+
 
 type Project = {
   id: string
@@ -135,4 +137,91 @@ function App() {
         <section className="metric-grid">
           <div className="metric-card">
             <span>Active Projects</span>
-            <strong>{projectsLoading ? '—' : projects.length}</strong
+<strong>{projectsLoading ? '—' : projects.length}</strong>
+          </div>
+
+          <div className="metric-card">
+            <span>Critical</span>
+            <strong>{projectsLoading ? '—' : criticalCount}</strong>
+          </div>
+
+          <div className="metric-card">
+            <span>Needs Attention</span>
+            <strong>{projectsLoading ? '—' : attentionCount}</strong>
+          </div>
+
+          <div className="metric-card">
+            <span>System</span>
+            <strong className="live">LIVE</strong>
+          </div>
+        </section>
+
+  <ChiefOfStaffBrief
+  projectCount={projects.length}
+  criticalCount={criticalCount}
+  attentionCount={attentionCount}
+/>
+
+        <section className="portfolio-section">
+          <div className="portfolio-header">
+            <div>
+              <p className="section-label">ACTIVE PORTFOLIO</p>
+              <h2>Projects</h2>
+            </div>
+
+            <span>{projects.length} active</span>
+          </div>
+
+          {projectsLoading ? (
+            <div className="portfolio-loading">Loading portfolio…</div>
+          ) : (
+            <div className="project-grid">
+              {projects.map((project) => (
+                <article className="project-card" key={project.id}>
+                  <div className="project-card-top">
+                    <div className="project-health">
+                      <span
+                        className={`health-dot ${project.health}`}
+                      />
+                      <span>{project.health}</span>
+                    </div>
+
+                    <span className={`priority-badge ${project.priority}`}>
+                      {project.priority}
+                    </span>
+                  </div>
+
+                  <h3>{project.name}</h3>
+
+                  <div className="project-detail">
+                    <span>Next milestone</span>
+                    <strong>{project.next_milestone || 'Not set'}</strong>
+                  </div>
+
+                  <div className="project-detail">
+                    <span>Critical action</span>
+                    <strong>{project.next_action || 'Not set'}</strong>
+                  </div>
+
+                  {project.blocker && project.blocker !== 'None' && (
+                    <div className="project-blocker">
+                      <span>Blocker</span>
+                      <strong>{project.blocker}</strong>
+                    </div>
+                  )}
+
+                  <div className="project-footer">
+                    <span>{project.owner || 'Unassigned'}</span>
+                    <span>{project.status}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+    </div>
+  )
+}
+
+export default App
