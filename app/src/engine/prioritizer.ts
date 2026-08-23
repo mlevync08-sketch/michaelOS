@@ -7,24 +7,24 @@ export type RankedProject = Project & {
 
 function priorityScore(priority: Project["priority"]): number {
   switch (priority) {
-    case "Critical":
+    case "critical":
       return 40
-    case "High":
+    case "high":
       return 30
-    case "Medium":
+    case "medium":
       return 20
-    case "Low":
+    case "low":
       return 10
   }
 }
 
 function healthScore(health: Project["health"]): number {
   switch (health) {
-    case "Red":
+    case "red":
       return 30
-    case "Amber":
+    case "amber":
       return 15
-    case "Green":
+    case "green":
       return 0
   }
 }

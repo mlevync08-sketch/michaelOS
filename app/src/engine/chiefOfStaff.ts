@@ -10,34 +10,34 @@ function scoreProject(project: Project): number {
   let score = 0
 
   switch (project.priority) {
-    case "Critical":
+    case "critical":
       score += 40
       break
-    case "High":
+    case "high":
       score += 30
       break
-    case "Medium":
+    case "medium":
       score += 20
       break
-    case "Low":
+    case "low":
       score += 10
       break
   }
 
   switch (project.health) {
-    case "Red":
+    case "red":
       score += 30
       break
-    case "Amber":
+    case "amber":
       score += 15
       break
-    case "Green":
+    case "green":
       break
   }
 
   if (project.blocker) score += 25
   if (project.next_action) score += 5
-  if (project.status === "Active") score += 10
+  if (project.status === "active") score += 10
 
   return score
 }

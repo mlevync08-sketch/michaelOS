@@ -4,19 +4,7 @@ import { supabase } from './lib/supabase'
 import Login from './components/Login'
 import './App.css'
 import ChiefOfStaffBrief from './components/ChiefOfStaffBrief'
-
-
-type Project = {
-  id: string
-  name: string
-  status: string
-  health: string
-  priority: string
-  next_milestone: string | null
-  blocker: string | null
-  next_action: string | null
-  owner: string | null
-}
+import type { Project } from "./types/project"
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -156,10 +144,8 @@ function App() {
           </div>
         </section>
 
-  <ChiefOfStaffBrief
-  projectCount={projects.length}
-  criticalCount={criticalCount}
-  attentionCount={attentionCount}
+<ChiefOfStaffBrief
+  projects={projects}
 />
 
         <section className="portfolio-section">

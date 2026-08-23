@@ -1,26 +1,16 @@
 import { buildExecutiveBrief } from "../engine/chiefOfStaff"
+import type { Project } from "../types/project"
+
 type ChiefOfStaffBriefProps = {
-  projectCount: number
-  criticalCount: number
-  attentionCount: number
+
+  projects: Project[]
+
 }
 
-export default function ChiefOfStaffBrief(
-  _props: ChiefOfStaffBriefProps
-) {
-  const brief = buildExecutiveBrief([
-  {
-    id: "1",
-    name: "GTM Command Center",
-    status: "Active",
-    health: "Green",
-    priority: "Critical",
-    next_milestone: "Executive Intelligence V1",
-    blocker: null,
-    next_action: "Complete the Executive Intelligence engine.",
-    owner: "Michael",
-  },
-])
+export default function ChiefOfStaffBrief({
+  projects,
+}: ChiefOfStaffBriefProps) {
+  const brief = buildExecutiveBrief(projects)
   return (
     <section className="brief-card">
       <p className="section-label">CHIEF OF STAFF BRIEF</p>
