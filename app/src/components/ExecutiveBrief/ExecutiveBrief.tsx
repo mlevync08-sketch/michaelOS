@@ -17,7 +17,7 @@ export default function ExecutiveBrief({
 
         <div className="executive-brief-meta">
           <span>{dashboard.mission.estimatedFocusMinutes} min focus</span>
-          <span>{dashboard.confidence}% confidence</span>
+          <span>{dashboard.metrics.confidence}% confidence</span>
         </div>
       </div>
 
@@ -34,38 +34,38 @@ export default function ExecutiveBrief({
       <div className="executive-brief-grid">
         <div className="executive-brief-section">
           <span>Why Today Matters</span>
-          <p>{dashboard.why}</p>
+          <p>{dashboard.context.whyToday}</p>
         </div>
 
         <div className="executive-brief-section">
           <span>If Ignored</span>
-          <p>{dashboard.consequence}</p>
+          <p>{dashboard.context.ifIgnored}</p>
         </div>
 
         <div className="executive-brief-section">
           <span>What Success Looks Like</span>
-          <p>{dashboard.success}</p>
+          <p>{dashboard.context.successLooksLike}</p>
         </div>
 
         <div className="executive-brief-section">
           <span>Watch Out</span>
-          <p>{dashboard.risk}</p>
+          <p>{dashboard.context.nextMove}</p>
         </div>
 
         <div className="executive-brief-section">
           <span>Highest Leverage</span>
-          <p>{dashboard.opportunity}</p>
+          <p>{dashboard.context.highestLeverage}</p>
         </div>
 
         <div className="executive-brief-section">
           <span>Next Move</span>
-          <p>{dashboard.recommendation}</p>
+          <p>{dashboard.context.nextMove}</p>
         </div>
       </div>
 
       <div className="executive-brief-footer">
         <span>Strategic Impact</span>
-        <strong>{dashboard.impact}</strong>
+        <strong>{dashboard.metrics.impact}</strong>
       </div>
     </section>
   )

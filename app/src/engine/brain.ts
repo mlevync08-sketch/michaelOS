@@ -9,23 +9,19 @@ export type ExecutiveDashboard = {
     estimatedFocusMinutes: number
   }
 
-  why: string
+  context: {
+    whyToday: string
+    ifIgnored: string
+    successLooksLike: string
+    nextMove: string
+    highestLeverage: string
+  }
 
-  success: string
-
-  risk: string
-
-  opportunity: string
-
-  recommendation: string
-
-  consequence: string
-
-  impact: "low" | "medium" | "high" | "critical"
-
-  confidence: number
-
-  focusScore: number
+  metrics: {
+    confidence: number
+    focusScore: number
+    impact: "low" | "medium" | "high" | "critical"
+  }
 }
 
 export function buildExecutiveDashboard(
@@ -39,25 +35,28 @@ export function buildExecutiveDashboard(
         estimatedFocusMinutes: 0,
       },
 
-      why: "There is no project data available to prioritize.",
+      context: {
+        whyToday:
+          "There is no project data available to prioritize.",
 
-      success:
-        "Add or activate projects to begin executive prioritization.",
+        ifIgnored:
+          "No immediate consequence detected.",
 
-      risk: "No execution risks detected.",
+        successLooksLike:
+          "Add or activate projects to begin executive prioritization.",
 
-      opportunity: "No active opportunity identified.",
+        nextMove:
+          "Add your current priorities to MichaelOS.",
 
-      recommendation:
-        "Add your current priorities to MichaelOS.",
+        highestLeverage:
+          "No active opportunity identified.",
+      },
 
-      consequence: "No immediate consequence detected.",
-
-      impact: "low",
-
-      confidence: 0,
-
-      focusScore: 0,
+      metrics: {
+        confidence: 0,
+        focusScore: 0,
+        impact: "low",
+      },
     }
   }
 
@@ -84,6 +83,7 @@ export function buildExecutiveDashboard(
   return {
     mission: {
       title: topProject.name,
+
       detail:
         topProject.next_action ??
         "Advance the next meaningful milestone.",
@@ -96,35 +96,37 @@ export function buildExecutiveDashboard(
           : 45,
     },
 
-    why: reasoning.why,
+    context: {
+      whyToday: reasoning.why,
 
-    success: reasoning.success,
+      ifIgnored: topProject.blocker
+        ? `If this remains unresolved, "${topProject.blocker}" may delay forward execution.`
+        : "Delaying this work may reduce momentum on a high-priority initiative.",
 
-    risk: reasoning.risk,
+      successLooksLike: reasoning.success,
 
-    opportunity: `${opportunityProject.name}: ${
-      opportunityProject.next_milestone ??
-      opportunityProject.next_action ??
-      "Continue forward execution."
-    }`,
+      nextMove: reasoning.recommendation,
 
-    recommendation: reasoning.recommendation,
+      highestLeverage: `${opportunityProject.name}: ${
+        opportunityProject.next_milestone ??
+        opportunityProject.next_action ??
+        "Continue forward execution."
+      }`,
+    },
 
-    consequence: topProject.blocker
-      ? `If this remains unresolved, "${topProject.blocker}" may delay forward execution.`
-      : "Delaying this work may reduce momentum on a high-priority initiative.",
+    metrics: {
+      confidence: reasoning.confidence,
 
-    impact:
-      topProject.priority === "critical"
-        ? "critical"
-        : topProject.priority === "high"
-        ? "high"
-        : topProject.priority === "medium"
-        ? "medium"
-        : "low",
+      focusScore,
 
-    confidence: reasoning.confidence,
-
-    focusScore,
+      impact:
+        topProject.priority === "critical"
+          ? "critical"
+          : topProject.priority === "high"
+          ? "high"
+          : topProject.priority === "medium"
+          ? "medium"
+          : "low",
+    },
   }
 }

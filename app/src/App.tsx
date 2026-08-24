@@ -122,7 +122,7 @@ function App() {
 
           <div className="focus-score">
             <span>Focus Score</span>
-     <strong>{dashboard.focusScore}</strong>
+   <strong>{dashboard.metrics.focusScore}</strong>
           </div>
         </header>
 
