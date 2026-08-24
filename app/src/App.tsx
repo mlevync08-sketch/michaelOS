@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import Login from './components/Login'
-import './App.css'
-import ChiefOfStaffBrief from './components/ChiefOfStaffBrief'
 import type { Project } from "./types/project"
+import './App.css'
+import { runMichaelOSKernel } from "./kernel/kernel"
+import ExecutiveBrief from "./components/ExecutiveBrief/ExecutiveBrief"
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -78,6 +79,9 @@ function App() {
     (project) => project.health === 'amber' || project.health === 'red'
   ).length
 
+  const dashboard = runMichaelOSKernel({
+  projects,
+})
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -118,7 +122,7 @@ function App() {
 
           <div className="focus-score">
             <span>Focus Score</span>
-            <strong>91</strong>
+     <strong>{dashboard.focusScore}</strong>
           </div>
         </header>
 
@@ -144,8 +148,8 @@ function App() {
           </div>
         </section>
 
-<ChiefOfStaffBrief
-  projects={projects}
+<ExecutiveBrief
+  dashboard={dashboard}
 />
 
         <section className="portfolio-section">
