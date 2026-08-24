@@ -1,4 +1,4 @@
-import { buildExecutiveBrief } from "../engine/chiefOfStaff"
+import { runMichaelOSKernel } from "../kernel/kernel"
 import type { Project } from "../types/project"
 
 type ChiefOfStaffBriefProps = {
@@ -10,7 +10,9 @@ type ChiefOfStaffBriefProps = {
 export default function ChiefOfStaffBrief({
   projects,
 }: ChiefOfStaffBriefProps) {
-  const brief = buildExecutiveBrief(projects)
+const dashboard = runMichaelOSKernel({
+  projects,
+})
   return (
     <section className="brief-card">
       <p className="section-label">CHIEF OF STAFF BRIEF</p>
@@ -21,7 +23,7 @@ export default function ChiefOfStaffBrief({
 
   <strong>Today's Mission</strong>
 
-  <p>{brief.mission}</p>
+  <p>{dashboard.mission}</p>
 
 </div>
 
@@ -29,7 +31,7 @@ export default function ChiefOfStaffBrief({
 
   <strong>Highest Risk</strong>
 
-  <p>{brief.risk}</p>
+  <p>{dashboard.risk}</p>
 
 </div>
 
@@ -37,7 +39,7 @@ export default function ChiefOfStaffBrief({
 
   <strong>Biggest Opportunity</strong>
 
-  <p>{brief.opportunity}</p>
+  <p>{dashboard.opportunity}</p>
 
 </div>
     </section>
