@@ -1,6 +1,16 @@
 import type { Project } from "../types/project"
+import type { Signal } from "../types/signal"
 import { rankProjects } from "./prioritizer"
 import { reasonAboutProject } from "./reasoner"
+import { discoverPatterns } from "./signals"
+
+export type StrategicDiscovery = {
+  title: string
+  summary: string
+  signalCount: number
+  importance: "low" | "medium" | "high" | "critical"
+  confidence: number
+}
 
 export type ExecutiveDashboard = {
   mission: {
@@ -22,16 +32,37 @@ export type ExecutiveDashboard = {
     focusScore: number
     impact: "low" | "medium" | "high" | "critical"
   }
+
+  discoveries: StrategicDiscovery[]
 }
 
 export function buildExecutiveDashboard(
-  projects: Project[]
+  projects: Project[],
+  signals: Signal[] = []
 ): ExecutiveDashboard {
+  const patterns = discoverPatterns(signals)
+
+  const discoveries: StrategicDiscovery[] = patterns
+    .filter(
+      (pattern) =>
+        pattern.signalCount >= 2 ||
+        pattern.highestImportance === "critical"
+    )
+    .slice(0, 3)
+    .map((pattern) => ({
+      title: pattern.title,
+      summary: `${pattern.signalCount} related signals detected.`,
+      signalCount: pattern.signalCount,
+      importance: pattern.highestImportance,
+      confidence: pattern.averageConfidence,
+    }))
+
   if (projects.length === 0) {
     return {
       mission: {
         title: "No active projects.",
-        detail: "Add or activate projects to begin executive prioritization.",
+        detail:
+          "Add or activate projects to begin executive prioritization.",
         estimatedFocusMinutes: 0,
       },
 
@@ -57,6 +88,8 @@ export function buildExecutiveDashboard(
         focusScore: 0,
         impact: "low",
       },
+
+      discoveries,
     }
   }
 
@@ -128,5 +161,7 @@ export function buildExecutiveDashboard(
           ? "medium"
           : "low",
     },
+
+    discoveries,
   }
 }
