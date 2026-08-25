@@ -6,7 +6,7 @@ import type { Project } from "./types/project"
 import type { Signal } from "./types/signal"
 import './App.css'
 import { runMichaelOSKernel } from "./kernel/kernel"
-import ExecutiveBrief from "./components/ExecutiveBrief/ExecutiveBrief"
+import ExecutiveHome from "./components/ExecutiveHome/ExecutiveHome"
 
 
 function App() {
@@ -202,8 +202,9 @@ const projectSignals: Signal[] = projects.flatMap((project) => {
           </div>
         </section>
 
-<ExecutiveBrief
+<ExecutiveHome
   dashboard={dashboard}
+  projects={projects}
 />
 
         <section className="portfolio-section">
