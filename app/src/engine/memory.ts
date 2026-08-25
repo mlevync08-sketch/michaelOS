@@ -25,3 +25,32 @@ export function recallImportant(
       memory.importance === "critical"
   )
 }
+
+export function recallByType(
+  memories: MemoryRecord[],
+  type: MemoryRecord["type"]
+): MemoryRecord[] {
+  return memories.filter(
+    (memory) => memory.type === type
+  )
+}
+
+export function unresolvedCommitments(
+  memories: MemoryRecord[]
+): MemoryRecord[] {
+  return memories.filter(
+    (memory) =>
+      memory.type === "commitment" &&
+      !memory.outcome
+  )
+}
+
+export function recentLessons(
+  memories: MemoryRecord[]
+): MemoryRecord[] {
+  return memories.filter(
+    (memory) =>
+      memory.type === "lesson" &&
+      memory.lesson
+  )
+}
