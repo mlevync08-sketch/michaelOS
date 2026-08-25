@@ -49,7 +49,7 @@ export default function ExecutiveBrief({
 
         <div className="executive-brief-section">
           <span>Watch Out</span>
-          <p>{dashboard.context.nextMove}</p>
+          <p>{dashboard.context.ifIgnored}</p>
         </div>
 
         <div className="executive-brief-section">
@@ -62,6 +62,29 @@ export default function ExecutiveBrief({
           <p>{dashboard.context.nextMove}</p>
         </div>
       </div>
+
+      {dashboard.discoveries.length > 0 && (
+        <div className="executive-discoveries">
+          <p className="executive-brief-kicker">ATLAS DISCOVERIES</p>
+
+          {dashboard.discoveries.map((discovery) => (
+            <div
+              className="executive-discovery"
+              key={discovery.title}
+            >
+              <strong>{discovery.title}</strong>
+
+              <p>{discovery.summary}</p>
+
+              <span>
+                {discovery.signalCount} signals ·{" "}
+                {discovery.importance} importance ·{" "}
+                {discovery.confidence}% confidence
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="executive-brief-footer">
         <span>Strategic Impact</span>
