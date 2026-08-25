@@ -3,9 +3,11 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import Login from './components/Login'
 import type { Project } from "./types/project"
+import type { Signal } from "./types/signal"
 import './App.css'
 import { runMichaelOSKernel } from "./kernel/kernel"
 import ExecutiveBrief from "./components/ExecutiveBrief/ExecutiveBrief"
+
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
@@ -79,8 +81,60 @@ function App() {
     (project) => project.health === 'amber' || project.health === 'red'
   ).length
 
-  const dashboard = runMichaelOSKernel({
+const projectSignals: Signal[] = projects.flatMap((project) => {
+  const signals: Signal[] = []
+
+  if (project.priority === "critical") {
+    signals.push({
+      id: `priority-${project.id}`,
+      source: "project",
+      title: `${project.name} is critical`,
+      summary: `${project.name} is currently marked as a critical priority.`,
+      importance: "critical",
+      confidence: 100,
+      occurred_at: new Date().toISOString(),
+      related_project_id: project.id,
+      related_person: project.owner,
+      actionable: true,
+    })
+  }
+
+  if (project.health === "red" || project.health === "amber") {
+    signals.push({
+      id: `health-${project.id}`,
+      source: "project",
+      title: `${project.name} needs attention`,
+      summary: `${project.name} is currently ${project.health}.`,
+      importance: project.health === "red" ? "high" : "medium",
+      confidence: 100,
+      occurred_at: new Date().toISOString(),
+      related_project_id: project.id,
+      related_person: project.owner,
+      actionable: true,
+    })
+  }
+
+  if (project.blocker && project.blocker !== "None") {
+    signals.push({
+      id: `blocker-${project.id}`,
+      source: "project",
+      title: `${project.name} has an active blocker`,
+      summary: project.blocker,
+      importance: "high",
+      confidence: 100,
+      occurred_at: new Date().toISOString(),
+      related_project_id: project.id,
+      related_person: project.owner,
+      actionable: true,
+    })
+  }
+
+  return signals
+})
+
+ const dashboard = runMichaelOSKernel({
   projects,
+  signals: projectSignals,
 })
   return (
     <div className="app-shell">
