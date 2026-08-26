@@ -79,9 +79,7 @@ export default function ExecutiveHome({
 
                 <span className="atlas-confidence">
                   CONFIDENCE{" "}
-                  <strong>
-                    {mission.confidence}%
-                  </strong>
+                  <strong>{mission.confidence}%</strong>
                 </span>
               </div>
 
@@ -124,21 +122,14 @@ export default function ExecutiveHome({
                   className="atlas-reason-box"
                   onClick={() =>
                     setDrawer({
-                      eyebrow:
-                        "SUCCESS LOOKS LIKE",
+                      eyebrow: "SUCCESS LOOKS LIKE",
                       title: mission.title,
-                      body:
-                        mission.successLooksLike,
+                      body: mission.successLooksLike,
                     })
                   }
                 >
-                  <small>
-                    SUCCESS LOOKS LIKE
-                  </small>
-
-                  <p>
-                    {mission.successLooksLike}
-                  </p>
+                  <small>SUCCESS LOOKS LIKE</small>
+                  <p>{mission.successLooksLike}</p>
                 </button>
               </div>
 
@@ -151,10 +142,8 @@ export default function ExecutiveHome({
                   className="atlas-secondary-btn"
                   onClick={() =>
                     setDrawer({
-                      eyebrow:
-                        "ATLAS EVIDENCE",
-                      title:
-                        "Why Atlas chose this",
+                      eyebrow: "ATLAS EVIDENCE",
+                      title: "Why Atlas chose this",
                       body: `${mission.whyToday} ${mission.ifIgnored}`,
                     })
                   }
@@ -164,10 +153,7 @@ export default function ExecutiveHome({
 
                 <span className="atlas-action-note">
                   Estimated focus block:{" "}
-                  {
-                    mission.estimatedFocusMinutes
-                  }{" "}
-                  min
+                  {mission.estimatedFocusMinutes} min
                 </span>
               </div>
             </div>
@@ -189,62 +175,38 @@ export default function ExecutiveHome({
             >
               <div className="atlas-score-inner">
                 <strong>
-                  {
-                    dashboard.metrics
-                      .focusScore
-                  }
+                  {dashboard.metrics.focusScore}
                 </strong>
-
-                <span>
-                  FOCUS SCORE
-                </span>
+                <span>FOCUS SCORE</span>
               </div>
             </div>
 
-            <h3>
-              High-leverage day
-            </h3>
+            <h3>High-leverage day</h3>
 
             <p>
-              Your highest-value work is
-              concentrated in a small number
-              of decisions. Protect the first
+              Your highest-value work is concentrated in a
+              small number of decisions. Protect the first
               deep-work block.
             </p>
 
             <div className="atlas-metric-row">
               <div className="atlas-mini-metric">
                 <strong>
-                  {
-                    metrics.criticalProjects
-                  }
+                  {metrics.criticalProjects}
                 </strong>
-
-                <small>
-                  critical moves
-                </small>
+                <small>critical moves</small>
               </div>
 
               <div className="atlas-mini-metric">
                 <strong>
-                  {
-                    metrics.openDecisions
-                  }
+                  {metrics.openDecisions}
                 </strong>
-
-                <small>
-                  open decisions
-                </small>
+                <small>open decisions</small>
               </div>
 
               <div className="atlas-mini-metric">
-                <strong>
-                  {metrics.waitingOn}
-                </strong>
-
-                <small>
-                  waiting on
-                </small>
+                <strong>{metrics.waitingOn}</strong>
+                <small>waiting on</small>
               </div>
             </div>
           </aside>
@@ -252,14 +214,10 @@ export default function ExecutiveHome({
 
         <div className="atlas-section-head">
           <div>
-            <h3>
-              Highest leverage after the mission
-            </h3>
-
+            <h3>Highest leverage after the mission</h3>
             <p>
-              Ranked by urgency, strategic
-              value, actionability, and
-              dependency relief.
+              Ranked by urgency, strategic value,
+              actionability, and dependency relief.
             </p>
           </div>
 
@@ -269,59 +227,44 @@ export default function ExecutiveHome({
         </div>
 
         <section className="atlas-leverage-grid">
-          {rankedProjects.map(
-            (project, index) => (
-              <article
-                className="atlas-card atlas-leverage-card"
-                key={project.id}
+          {rankedProjects.map((project, index) => (
+            <article
+              className="atlas-card atlas-leverage-card"
+              key={project.id}
+            >
+              <div className="atlas-rank">
+                {String(index + 1).padStart(2, "0")}
+              </div>
+
+              <span
+                className={`atlas-project-tag ${project.priority}`}
               >
-                <div className="atlas-rank">
-                  {String(
-                    index + 1
-                  ).padStart(2, "0")}
-                </div>
+                ● {priorityLabel(project.priority)}
+              </span>
 
-                <span
-                  className={`atlas-project-tag ${project.priority}`}
-                >
-                  ●{" "}
-                  {priorityLabel(
-                    project.priority
-                  )}
-                </span>
+              <h4>{project.name}</h4>
 
-                <h4>
-                  {project.name}
-                </h4>
+              <p>
+                {project.next_milestone ??
+                  "Advance the next meaningful milestone."}
+              </p>
 
-                <p>
-                  {project.next_milestone ??
-                    "Advance the next meaningful milestone."}
-                </p>
-
-                <div className="atlas-nextline">
-                  <strong>
-                    Next move:
-                  </strong>{" "}
-                  {project.next_action ??
-                    "Define the next concrete execution step."}
-                </div>
-              </article>
-            )
-          )}
+              <div className="atlas-nextline">
+                <strong>Next move:</strong>{" "}
+                {project.next_action ??
+                  "Define the next concrete execution step."}
+              </div>
+            </article>
+          ))}
         </section>
 
         <section className="atlas-bottom-grid">
           <article className="atlas-card atlas-compact-card">
             <div className="atlas-section-head compact">
               <div>
-                <h3>
-                  Executive agenda
-                </h3>
-
+                <h3>Executive agenda</h3>
                 <p>
-                  Where Atlas recommends
-                  your time goes.
+                  Where Atlas recommends your time goes.
                 </p>
               </div>
 
@@ -330,38 +273,34 @@ export default function ExecutiveHome({
               </button>
             </div>
 
-            {executiveAgenda.length >
-            0 ? (
-              executiveAgenda.map(
-                (item) => (
-                  <div
-                    className="atlas-agenda-item"
-                    key={item.id}
-                  >
-                    <div className="atlas-agenda-time">
-                      {item.source.toUpperCase()}
-                    </div>
-
-                    <div>
-                      <div className="atlas-agenda-title">
-                        {item.title}
-                      </div>
-
-                      <div className="atlas-agenda-sub">
-                        {item.subtitle}
-                      </div>
-                    </div>
-
-                    <span className="atlas-agenda-pill">
-                      {item.priority.toUpperCase()}
-                    </span>
+            {executiveAgenda.length > 0 ? (
+              executiveAgenda.map((item) => (
+                <div
+                  className="atlas-agenda-item"
+                  key={item.id}
+                >
+                  <div className="atlas-agenda-time">
+                    {item.source.toUpperCase()}
                   </div>
-                )
-              )
+
+                  <div>
+                    <div className="atlas-agenda-title">
+                      {item.title}
+                    </div>
+
+                    <div className="atlas-agenda-sub">
+                      {item.subtitle}
+                    </div>
+                  </div>
+
+                  <span className="atlas-agenda-pill">
+                    {item.priority.toUpperCase()}
+                  </span>
+                </div>
+              ))
             ) : (
               <div className="atlas-empty">
-                No priority agenda items
-                detected.
+                No priority agenda items detected.
               </div>
             )}
           </article>
@@ -369,13 +308,9 @@ export default function ExecutiveHome({
           <article className="atlas-card atlas-compact-card">
             <div className="atlas-section-head compact">
               <div>
-                <h3>
-                  Waiting on
-                </h3>
-
+                <h3>Waiting on</h3>
                 <p>
-                  Dependencies with growing
-                  execution cost.
+                  Dependencies with growing execution cost.
                 </p>
               </div>
 
@@ -384,36 +319,27 @@ export default function ExecutiveHome({
               </button>
             </div>
 
-            {waitingOn.length >
-            0 ? (
-              waitingOn
-                .slice(0, 4)
-                .map((item) => (
-                  <div
-                    className="atlas-waiting-item"
-                    key={item.id}
-                  >
-                    <div className="atlas-waiting-top">
-                      <strong>
-                        {item.person}
-                      </strong>
+            {waitingOn.length > 0 ? (
+              waitingOn.slice(0, 4).map((item) => (
+                <div
+                  className="atlas-waiting-item"
+                  key={item.id}
+                >
+                  <div className="atlas-waiting-top">
+                    <strong>{item.person}</strong>
 
-                      <span>
-                        {ageLabel(
-                          item.requested_on
-                        )}
-                      </span>
-                    </div>
-
-                    <p>
-                      {item.item}
-                    </p>
+                    <span>
+                      {ageLabel(item.requested_on)}
+                    </span>
                   </div>
-                ))
+
+                  <p>{item.item}</p>
+                </div>
+              ))
             ) : (
               <div className="atlas-empty">
-                No external dependencies
-                are currently waiting.
+                No external dependencies are currently
+                waiting.
               </div>
             )}
           </article>
@@ -421,81 +347,42 @@ export default function ExecutiveHome({
 
         <section className="atlas-live-domain-strip">
           <div>
-            <span>
-              Projects
-            </span>
-
-            <strong>
-              {projects.length}
-            </strong>
+            <span>Projects</span>
+            <strong>{projects.length}</strong>
           </div>
 
           <div>
-            <span>
-              Actions
-            </span>
-
-            <strong>
-              {actions.length}
-            </strong>
+            <span>Actions</span>
+            <strong>{actions.length}</strong>
           </div>
 
           <div>
-            <span>
-              Decisions
-            </span>
-
-            <strong>
-              {decisions.length}
-            </strong>
+            <span>Decisions</span>
+            <strong>{decisions.length}</strong>
           </div>
 
           <div>
-            <span>
-              Waiting On
-            </span>
-
-            <strong>
-              {waitingOn.length}
-            </strong>
+            <span>Waiting On</span>
+            <strong>{waitingOn.length}</strong>
           </div>
 
           <div>
-            <span>
-              Relationships
-            </span>
-
-            <strong>
-              {
-                state.relationships
-                  .length
-              }
-            </strong>
+            <span>Relationships</span>
+            <strong>{state.relationships.length}</strong>
           </div>
 
           <div>
-            <span>
-              Signals
-            </span>
-
-            <strong>
-              {state.signals.length}
-            </strong>
+            <span>Signals</span>
+            <strong>{state.signals.length}</strong>
           </div>
         </section>
       </div>
 
       <DetailDrawer
         open={drawer !== null}
-        eyebrow={
-          drawer?.eyebrow ?? ""
-        }
-        title={
-          drawer?.title ?? ""
-        }
-        onClose={() =>
-          setDrawer(null)
-        }
+        eyebrow={drawer?.eyebrow ?? ""}
+        title={drawer?.title ?? ""}
+        onClose={() => setDrawer(null)}
       >
         <p>{drawer?.body}</p>
       </DetailDrawer>

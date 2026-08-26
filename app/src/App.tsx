@@ -4,31 +4,33 @@ import type { Session } from "@supabase/supabase-js"
 import { supabase } from "./lib/supabase"
 import Login from "./components/Login"
 import ExecutiveHome from "./components/ExecutiveHome/ExecutiveHome"
-
 import { loadExecutiveRepositoryData } from "./repositories/executiveRepository"
 import { runMichaelOSKernel } from "./kernel/kernel"
-
 import type { ExecutiveState } from "./types/executiveState"
 
 import "./App.css"
 
+type ViewKey =
+  | "today"
+  | "projects"
+  | "actions"
+  | "relationships"
+  | "waiting"
+  | "decisions"
+  | "weekly"
+  | "health"
+
 function App() {
   const [session, setSession] = useState<Session | null>(null)
-
   const [authLoading, setAuthLoading] = useState(true)
-
-  const [executiveState, setExecutiveState] =
-    useState<ExecutiveState | null>(null)
-
+  const [executiveState, setExecutiveState] = useState<ExecutiveState | null>(null)
   const [stateLoading, setStateLoading] = useState(false)
-
-  const [stateError, setStateError] =
-    useState<string | null>(null)
+  const [stateError, setStateError] = useState<string | null>(null)
+  const [view, setView] = useState<ViewKey>("today")
 
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession()
-
       setSession(data.session)
       setAuthLoading(false)
     }
@@ -37,11 +39,9 @@ function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event, nextSession) => {
-        setSession(nextSession)
-      }
-    )
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession)
+    })
 
     return () => subscription.unsubscribe()
   }, [])
@@ -57,8 +57,7 @@ function App() {
       setStateError(null)
 
       try {
-        const repositoryData =
-          await loadExecutiveRepositoryData()
+        const repositoryData = await loadExecutiveRepositoryData()
 
         const nextState = runMichaelOSKernel({
           projects: repositoryData.projects,
@@ -72,14 +71,8 @@ function App() {
 
         setExecutiveState(nextState)
       } catch (error) {
-        console.error(
-          "Failed to load MichaelOS ExecutiveState:",
-          error
-        )
-
-        setStateError(
-          "MichaelOS could not assemble the executive state."
-        )
+        console.error("Failed to load MichaelOS ExecutiveState:", error)
+        setStateError("MichaelOS could not assemble the executive state.")
       } finally {
         setStateLoading(false)
       }
@@ -103,11 +96,7 @@ function App() {
   }
 
   if (authLoading) {
-    return (
-      <div className="loading-screen">
-        Opening MichaelOS…
-      </div>
-    )
+    return <div className="loading-screen">Opening MichaelOS…</div>
   }
 
   if (!session) {
@@ -134,236 +123,160 @@ function App() {
   }
 
   if (!executiveState) {
-    return (
-      <div className="loading-screen">
-        No executive state available.
-      </div>
-    )
+    return <div className="loading-screen">No executive state available.</div>
   }
 
-const {
-  dashboard,
-  metrics,
-} = executiveState
+  const { metrics } = executiveState
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">M</div>
+    <div className="atlas-app-shell">
+      <aside className="atlas-sidebar">
+        <div className="atlas-brand">
+          <div className="atlas-brand-mark">A</div>
 
           <div>
-            <strong>MichaelOS</strong>
-            <span>Executive Operating System</span>
+            <div className="atlas-brand-name">ATLAS</div>
+            <div className="atlas-brand-sub">Executive Brain</div>
           </div>
         </div>
 
-        <nav className="nav">
-          <button className="nav-item active">
-            Today
+        <nav className="atlas-nav">
+          <button
+            className={`atlas-nav-item ${view === "today" ? "active" : ""}`}
+            onClick={() => setView("today")}
+          >
+            <span>◉</span>
+            <b>Today</b>
           </button>
 
-          <button className="nav-item">
-            Projects
+          <button
+            className={`atlas-nav-item ${view === "weekly" ? "active" : ""}`}
+            onClick={() => setView("weekly")}
+          >
+            <span>◫</span>
+            <b>Weekly Review</b>
           </button>
 
-          <button className="nav-item">
-            Actions
-            <span>{metrics.openActions}</span>
+          <div className="atlas-nav-label">EXECUTIVE DOMAINS</div>
+
+          <button
+            className={`atlas-nav-item ${view === "projects" ? "active" : ""}`}
+            onClick={() => setView("projects")}
+          >
+            <span>◇</span>
+            <b>Projects</b>
+            <em>{metrics.activeProjects}</em>
           </button>
 
-          <button className="nav-item">
-            Relationships
+          <button
+            className={`atlas-nav-item ${view === "decisions" ? "active" : ""}`}
+            onClick={() => setView("decisions")}
+          >
+            <span>◆</span>
+            <b>Decisions</b>
+            <em>{metrics.openDecisions}</em>
           </button>
 
-          <button className="nav-item">
-            Waiting On
-            <span>{metrics.waitingOn}</span>
+          <button
+            className={`atlas-nav-item ${view === "waiting" ? "active" : ""}`}
+            onClick={() => setView("waiting")}
+          >
+            <span>⌛</span>
+            <b>Waiting On</b>
+            <em>{metrics.waitingOn}</em>
           </button>
 
-          <button className="nav-item">
-            Decisions
-            <span>{metrics.openDecisions}</span>
+          <button
+            className={`atlas-nav-item ${view === "relationships" ? "active" : ""}`}
+            onClick={() => setView("relationships")}
+          >
+            <span>◎</span>
+            <b>Relationships</b>
+            <em>{executiveState.relationships.length}</em>
           </button>
 
-          <button className="nav-item">
-            Weekly Review
+          <button
+            className={`atlas-nav-item ${view === "actions" ? "active" : ""}`}
+            onClick={() => setView("actions")}
+          >
+            <span>▣</span>
+            <b>Actions</b>
+            <em>{metrics.openActions}</em>
           </button>
 
-          <button className="nav-item">
-            Health
+          <button
+            className={`atlas-nav-item ${view === "health" ? "active" : ""}`}
+            onClick={() => setView("health")}
+          >
+            <span>♡</span>
+            <b>Capacity</b>
           </button>
         </nav>
 
-        <div
-          style={{
-            marginTop: "auto",
-            padding: "12px 0",
-            fontSize: "12px",
-            opacity: 0.65,
-          }}
-        >
-          Kernel LIVE
-        </div>
-
-        <button
-          className="sign-out"
-          onClick={signOut}
-        >
-          Sign out
-        </button>
-      </aside>
-
-      <main className="main-content">
-        <header className="page-header">
-          <div>
-            <p className="eyebrow">
-              {dateLabel}
-            </p>
-
-            <h1>Good morning, Michael.</h1>
-
-            <p className="subtitle">
-              Here&apos;s what deserves your
-              attention today.
-            </p>
+        <div className="atlas-sidebar-footer">
+          <div className="atlas-system-status">
+            <i />
+            <div>
+              <strong>MichaelOS Kernel online</strong>
+              <small>ExecutiveState live</small>
+            </div>
           </div>
 
-          <div className="focus-score">
-            <span>Focus Score</span>
+          <button className="atlas-sign-out" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
+      </aside>
 
-            <strong>
-              {dashboard.metrics.focusScore}
-            </strong>
+      <main className="atlas-main">
+        <header className="atlas-topbar">
+          <div>
+            <div className="atlas-eyebrow">{dateLabel}</div>
+            <h1>Good morning, Michael.</h1>
+          </div>
+
+          <div className="atlas-top-actions">
+            <button className="atlas-search-btn">
+              ⌕ <span>Search Atlas</span>
+            </button>
+
+            <button
+              className="atlas-refresh-btn"
+              onClick={() => window.location.reload()}
+              aria-label="Refresh Atlas"
+            >
+              ↻
+            </button>
+
+            <div className="atlas-avatar">ML</div>
           </div>
         </header>
 
-        <section className="metric-grid">
-          <div className="metric-card">
-            <span>Active Projects</span>
-            <strong>
-              {metrics.activeProjects}
-            </strong>
-          </div>
+        <section className="atlas-main-content">
+          {view === "today" ? (
+            <ExecutiveHome state={executiveState} />
+          ) : (
+            <div className="atlas-placeholder-card">
+              <div className="atlas-section-label">
+                {view.toUpperCase()}
+              </div>
 
-          <div className="metric-card">
-            <span>Critical</span>
-            <strong>
-              {metrics.criticalProjects}
-            </strong>
-          </div>
+              <h2>
+                {view === "projects" && "Project portfolio"}
+                {view === "actions" && "Open actions"}
+                {view === "relationships" && "Relationship intelligence"}
+                {view === "waiting" && "Waiting on"}
+                {view === "decisions" && "Decision queue"}
+                {view === "weekly" && "Weekly Review"}
+                {view === "health" && "Executive capacity"}
+              </h2>
 
-          <div className="metric-card">
-            <span>Needs Attention</span>
-            <strong>
-              {metrics.needsAttention}
-            </strong>
-          </div>
-
-          <div className="metric-card">
-            <span>Open Decisions</span>
-            <strong>
-              {metrics.openDecisions}
-            </strong>
-          </div>
-
-          <div className="metric-card">
-            <span>Waiting On</span>
-            <strong>
-              {metrics.waitingOn}
-            </strong>
-          </div>
-
-          <div className="metric-card">
-            <span>Open Actions</span>
-            <strong>
-              {metrics.openActions}
-            </strong>
-          </div>
-
-          <div className="metric-card">
-            <span>System</span>
-            <strong className="live">
-              LIVE
-            </strong>
-          </div>
-        </section>
-
-   <ExecutiveHome state={executiveState} />
-
-        <section className="portfolio-section">
-          <div className="portfolio-header">
-            <div>
-              <p className="section-label">
-                MICHAEL OS EXECUTIVE STATE
+              <p>
+                This domain is connected to MichaelOS and will be expanded into
+                its full operating view next.
               </p>
-
-              <h2>Live Domain Summary</h2>
             </div>
-
-            <span>
-              Generated{" "}
-              {new Date(
-                executiveState.generatedAt
-              ).toLocaleTimeString([], {
-                hour: "numeric",
-                minute: "2-digit",
-              })}
-            </span>
-          </div>
-
-          <div className="metric-grid">
-            <div className="metric-card">
-              <span>Projects</span>
-              <strong>
-                {executiveState.projects.length}
-              </strong>
-            </div>
-
-            <div className="metric-card">
-              <span>Actions</span>
-              <strong>
-                {executiveState.actions.length}
-              </strong>
-            </div>
-
-            <div className="metric-card">
-              <span>Decisions</span>
-              <strong>
-                {executiveState.decisions.length}
-              </strong>
-            </div>
-
-            <div className="metric-card">
-              <span>Waiting On</span>
-              <strong>
-                {executiveState.waitingOn.length}
-              </strong>
-            </div>
-
-            <div className="metric-card">
-              <span>Relationships</span>
-              <strong>
-                {executiveState.relationships.length}
-              </strong>
-            </div>
-
-            <div className="metric-card">
-              <span>Signals</span>
-              <strong>
-                {executiveState.signals.length}
-              </strong>
-            </div>
-
-            <div className="metric-card">
-              <span>Health</span>
-              <strong>
-                {executiveState.health
-                  ? "CONNECTED"
-                  : "—"}
-              </strong>
-            </div>
-          </div>
+          )}
         </section>
       </main>
     </div>
