@@ -1,3 +1,4 @@
+
 import type { Project } from "./project"
 import type { Signal } from "./signal"
 import type { ExecutiveDashboard } from "../engine/brain"
@@ -68,22 +69,66 @@ export type HealthProfile = {
   updated_at: string | null
 }
 
+export type ExecutiveAgendaItem = {
+  id: string
+  title: string
+  subtitle: string
+  source: "action" | "decision" | "project" | "dependency"
+  priority: "critical" | "high" | "medium" | "low"
+  projectId: string | null
+  dueDate: string | null
+}
+
+export type ExecutiveRecommendation = {
+  id: string
+  title: string
+  detail: string
+  reason: string
+  confidence: number
+}
+
+export type ExecutiveRisk = {
+  id: string
+  title: string
+  detail: string
+  severity: "critical" | "high" | "medium" | "low"
+}
+
+export type RelationshipAlert = {
+  id: string
+  name: string
+  detail: string
+  relevance: number
+}
+
+export type ExecutiveMission = {
+  title: string
+  detail: string
+  whyToday: string
+  ifIgnored: string
+  successLooksLike: string
+  estimatedFocusMinutes: number
+  confidence: number
+  source: "decision" | "action" | "dependency" | "project"
+  sourceId: string
+}
+
 export type ExecutiveState = {
   generatedAt: string
-
+  mission: ExecutiveMission
+  executiveAgenda: ExecutiveAgendaItem[]
+  recommendations: ExecutiveRecommendation[]
+  risks: ExecutiveRisk[]
+  relationshipAlerts: RelationshipAlert[]
   projects: Project[]
   actions: ActionItem[]
   decisions: DecisionItem[]
   waitingOn: WaitingOnItem[]
   relationships: Relationship[]
-
   dailyBrief: DailyBrief | null
   health: HealthProfile | null
-
   signals: Signal[]
-
   dashboard: ExecutiveDashboard
-
   metrics: {
     activeProjects: number
     criticalProjects: number
