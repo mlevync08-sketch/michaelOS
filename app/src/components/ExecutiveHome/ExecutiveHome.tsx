@@ -2,8 +2,7 @@ import type { ExecutiveDashboard } from "../../engine/brain"
 import type { Project } from "../../types/project"
 import ExecutiveBrief from "../ExecutiveBrief/ExecutiveBrief"
 import "./ExecutiveHome.css"
-import { useState } from "react"
-import DetailDrawer from "./DetailDrawer"
+
 
 type ExecutiveHomeProps = {
   dashboard: ExecutiveDashboard
@@ -35,11 +34,6 @@ export default function ExecutiveHome({
   dashboard,
   projects,
 }: ExecutiveHomeProps) {
-  const [drawer, setDrawer] = useState<{
-    eyebrow: string
-    title: string
-    body: string
-  } | null>(null)
 
   const criticalProjects = projects.filter(
     (project) => project.priority === "critical"
