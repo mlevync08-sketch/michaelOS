@@ -1,374 +1,154 @@
-import { useState } from "react"
-import type { ExecutiveDashboard } from "../../engine/brain"
-import type { Project } from "../../types/project"
-import ExecutiveBrief from "../ExecutiveBrief/ExecutiveBrief"
+import { useMemo, useState } from "react"
+import type { ExecutiveState } from "../../types/executiveState"
 import DetailDrawer from "./DetailDrawer"
 import "./ExecutiveHome.css"
 
-type ExecutiveHomeProps = {
-  dashboard: ExecutiveDashboard
-  projects: Project[]
+type Props = { state: ExecutiveState }
+type DrawerContent = { eyebrow: string; title: string; body: string }
+
+const priorityLabel = (p:string) => p.toUpperCase()
+const ageLabel = (date:string|null) => {
+  if (!date) return "Open"
+  const days = Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 86400000))
+  return days === 0 ? "Today" : `${days} day${days === 1 ? "" : "s"}`
 }
 
-type DrawerContent = {
-  eyebrow: string
-  title: string
-  body: string
-}
+export default function ExecutiveHome({ state }: Props) {
+  const [drawer,setDrawer] = useState<DrawerContent|null>(null)
+  const { dashboard, projects, actions, decisions, waitingOn, metrics } = state
 
-function discoveryTitle(
-  title: string,
-  projects: Project[]
-): string {
-  if (!title.startsWith("Project ")) return title
+  const rankedProjects = useMemo(() => {
+    const order: Record<string,number> = {critical:4,high:3,medium:2,low:1}
+    return [...projects].sort((a,b)=>(order[b.priority]||0)-(order[a.priority]||0)).slice(0,3)
+  }, [projects])
 
-  const projectId = title.replace("Project ", "")
-  const project = projects.find(
-    (item) => item.id === projectId
-  )
-
-  return project?.name ?? "Portfolio Pattern"
-}
-
-function priorityLabel(project: Project): string {
-  if (project.priority === "critical") return "Critical"
-  if (project.priority === "high") return "High Priority"
-  if (project.priority === "medium") return "Medium Priority"
-  return "Low Priority"
-}
-
-export default function ExecutiveHome({
-  dashboard,
-  projects,
-}: ExecutiveHomeProps) {
-  const [drawer, setDrawer] =
-    useState<DrawerContent | null>(null)
-
-  const criticalProjects = projects.filter(
-    (project) => project.priority === "critical"
-  )
-
-  const blockedProjects = projects.filter(
-    (project) =>
-      Boolean(project.blocker) &&
-      project.blocker !== "None"
-  )
-
-  const agendaProjects = projects.slice(0, 4)
+  const agendaItems = useMemo(() => {
+    if (actions.length) {
+      return actions.slice(0,4).map((a,i)=>({
+        label:`FOCUS ${i+1}`,
+        title:a.project_id ? (projects.find(p=>p.id===a.project_id)?.name ?? a.title) : a.title,
+        subtitle:a.title
+      }))
+    }
+    return projects.slice(0,4).map((p,i)=>({
+      label:`FOCUS ${i+1}`,
+      title:p.name,
+      subtitle:p.next_action ?? p.next_milestone ?? "Advance next meaningful milestone"
+    }))
+  }, [actions,projects])
 
   return (
     <>
-      <div className="executive-home">
-        <header className="atlas-home-header">
-          <div>
-            <p className="atlas-overline">
-              ATLAS EXECUTIVE INTELLIGENCE
-            </p>
-
-            <h1>Good morning, Michael.</h1>
-
-            <p className="atlas-home-subtitle">
-              Atlas has one recommendation for you today.
-            </p>
-          </div>
-
-          <div className="atlas-focus-score">
-            <span>Focus Score</span>
-            <strong>{dashboard.metrics.focusScore}</strong>
-            <small>Executive readiness</small>
-          </div>
-        </header>
-
-        <div className="atlas-home-grid">
-          <main className="atlas-primary">
-            <section className="atlas-mission-shell">
-              <ExecutiveBrief dashboard={dashboard} />
-            </section>
-
-            <section className="atlas-discovery-panel">
-              <div className="atlas-section-heading">
-                <div>
-                  <p className="atlas-overline">
-                    ATLAS DISCOVERIES
-                  </p>
-                  <h2>What you may be missing</h2>
-                </div>
-
-                <span>
-                  {dashboard.discoveries.length} active
-                </span>
+      <div className="atlas-shell">
+        <section className="atlas-hero-grid">
+          <article className="atlas-card atlas-mission">
+            <div className="atlas-card-inner">
+              <div className="atlas-label-row">
+                <span className="atlas-section-label">TODAY'S MISSION</span>
+                <span className="atlas-confidence">CONFIDENCE <strong>{dashboard.metrics.confidence}%</strong></span>
               </div>
+              <h2>{dashboard.mission.title}</h2>
+              <p className="atlas-lead">{dashboard.mission.detail}</p>
 
-              {dashboard.discoveries.length > 0 ? (
-                <div className="atlas-discovery-grid">
-                  {dashboard.discoveries
-                    .slice(0, 3)
-                    .map((discovery) => {
-                      const title = discoveryTitle(
-                        discovery.title,
-                        projects
-                      )
-
-                      return (
-                        <article
-                          className="atlas-discovery-card atlas-clickable-card"
-                          key={`${discovery.title}-${discovery.summary}`}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() =>
-                            setDrawer({
-                              eyebrow: "ATLAS DISCOVERY",
-                              title,
-                              body: `${discovery.summary} ${discovery.signalCount} supporting signals. Atlas confidence is ${discovery.confidence}%.`,
-                            })
-                          }
-                          onKeyDown={(event) => {
-                            if (
-                              event.key === "Enter" ||
-                              event.key === " "
-                            ) {
-                              setDrawer({
-                                eyebrow: "ATLAS DISCOVERY",
-                                title,
-                                body: `${discovery.summary} ${discovery.signalCount} supporting signals. Atlas confidence is ${discovery.confidence}%.`,
-                              })
-                            }
-                          }}
-                        >
-                          <div className="atlas-discovery-card-top">
-                            <span
-                              className={`atlas-insight-badge ${discovery.importance}`}
-                            >
-                              {discovery.importance}
-                            </span>
-
-                            <span className="atlas-confidence">
-                              {discovery.confidence}% confidence
-                            </span>
-                          </div>
-
-                          <h3>{title}</h3>
-
-                          <p>{discovery.summary}</p>
-
-                          <footer>
-                            {discovery.signalCount} supporting signals
-                          </footer>
-                        </article>
-                      )
-                    })}
-                </div>
-              ) : (
-                <div className="atlas-empty-state">
-                  Atlas is watching for emerging patterns.
-                </div>
-              )}
-            </section>
-
-            <section className="atlas-portfolio-panel">
-              <div className="atlas-section-heading">
-                <div>
-                  <p className="atlas-overline">
-                    ACTIVE PORTFOLIO
-                  </p>
-                  <h2>Projects</h2>
-                </div>
-
-                <span>{projects.length} active</span>
-              </div>
-
-              <div className="atlas-project-grid">
-                {projects.slice(0, 6).map((project) => (
-                  <article
-                    className="atlas-project-card"
-                    key={project.id}
-                  >
-                    <div className="atlas-project-top">
-                      <span
-                        className={`atlas-health-dot ${project.health}`}
-                      />
-
-                      <span
-                        className={`atlas-priority ${project.priority}`}
-                      >
-                        {priorityLabel(project)}
-                      </span>
-                    </div>
-
-                    <h3>{project.name}</h3>
-
-                    <p>
-                      {project.next_milestone ??
-                        project.next_action ??
-                        "Advance the next meaningful milestone."}
-                    </p>
-
-                    {project.blocker &&
-                      project.blocker !== "None" && (
-                        <div className="atlas-project-blocker">
-                          <span>Blocker</span>
-                          <strong>{project.blocker}</strong>
-                        </div>
-                      )}
-
-                    <footer>
-                      <span>
-                        {project.owner ?? "Michael"}
-                      </span>
-                      <span>{project.status}</span>
-                    </footer>
-                  </article>
+              <div className="atlas-reason-grid">
+                {[
+                  ["WHY TODAY",dashboard.context.whyToday],
+                  ["IF IGNORED",dashboard.context.ifIgnored],
+                  ["SUCCESS LOOKS LIKE",dashboard.context.successLooksLike],
+                ].map(([label,body])=>(
+                  <button className="atlas-reason-box" key={label}
+                    onClick={()=>setDrawer({eyebrow:label,title:dashboard.mission.title,body})}>
+                    <small>{label}</small><p>{body}</p>
+                  </button>
                 ))}
               </div>
-            </section>
-          </main>
 
-          <aside className="atlas-rail">
-            <section className="atlas-rail-card">
-              <div className="atlas-rail-heading">
-                <div>
-                  <p className="atlas-overline">
-                    TODAY&apos;S FLOW
-                  </p>
-                  <h2>Executive Agenda</h2>
-                </div>
+              <div className="atlas-action-row">
+                <button className="atlas-primary-btn">Mark mission complete</button>
+                <button className="atlas-secondary-btn"
+                  onClick={()=>setDrawer({eyebrow:"ATLAS EVIDENCE",title:"Why Atlas chose this",
+                    body:`${dashboard.context.whyToday} ${dashboard.context.nextMove}`})}>
+                  Show evidence
+                </button>
+                <span className="atlas-action-note">Estimated focus block: {dashboard.mission.estimatedFocusMinutes} min</span>
               </div>
+            </div>
+          </article>
 
-              <div className="atlas-agenda-list">
-                {agendaProjects.map((project, index) => (
-                  <div
-                    className="atlas-agenda-item"
-                    key={project.id}
-                  >
-                    <span className="atlas-agenda-time">
-                      {`${6 + index * 2}:00`}
-                    </span>
-
-                    <div>
-                      <strong>{project.name}</strong>
-                      <p>
-                        {project.next_action ??
-                          project.next_milestone ??
-                          "Strategic review"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+          <aside className="atlas-card atlas-focus-card">
+            <span className="atlas-section-label">EXECUTIVE FOCUS</span>
+            <div className="atlas-score-ring" style={{background:`conic-gradient(#0aa6a6 0 ${dashboard.metrics.focusScore}%, #e7eff0 ${dashboard.metrics.focusScore}% 100%)`}}>
+              <div className="atlas-score-inner">
+                <strong>{dashboard.metrics.focusScore}</strong><span>FOCUS SCORE</span>
               </div>
-            </section>
-
-            <section className="atlas-rail-card">
-              <div className="atlas-rail-heading">
-                <div>
-                  <p className="atlas-overline">
-                    DECISION QUEUE
-                  </p>
-                  <h2>Decisions</h2>
-                </div>
-
-                <span>{criticalProjects.length}</span>
-              </div>
-
-              {criticalProjects.length > 0 ? (
-                <div className="atlas-rail-list">
-                  {criticalProjects
-                    .slice(0, 3)
-                    .map((project) => (
-                      <div
-                        className="atlas-rail-item"
-                        key={project.id}
-                      >
-                        <div>
-                          <strong>{project.name}</strong>
-                          <p>
-                            {project.next_action ??
-                              "Executive decision required"}
-                          </p>
-                        </div>
-
-                        <span className="atlas-status critical">
-                          Today
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <p className="atlas-muted">
-                  No critical decisions waiting.
-                </p>
-              )}
-            </section>
-
-            <section className="atlas-rail-card">
-              <div className="atlas-rail-heading">
-                <div>
-                  <p className="atlas-overline">
-                    WAITING ON
-                  </p>
-                  <h2>Dependencies</h2>
-                </div>
-
-                <span>{blockedProjects.length}</span>
-              </div>
-
-              {blockedProjects.length > 0 ? (
-                <div className="atlas-rail-list">
-                  {blockedProjects
-                    .slice(0, 4)
-                    .map((project) => (
-                      <div
-                        className="atlas-rail-item"
-                        key={project.id}
-                      >
-                        <div>
-                          <strong>{project.name}</strong>
-                          <p>{project.blocker}</p>
-                        </div>
-
-                        <span className="atlas-status waiting">
-                          Waiting
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <p className="atlas-muted">
-                  No active dependencies detected.
-                </p>
-              )}
-            </section>
-
-            <section className="atlas-rail-card atlas-capacity-card">
-              <div>
-                <p className="atlas-overline">
-                  EXECUTIVE CAPACITY
-                </p>
-                <h2>Ready to execute</h2>
-              </div>
-
-              <div className="atlas-capacity-score">
-                <strong>
-                  {dashboard.metrics.focusScore}
-                </strong>
-                <span>/100</span>
-              </div>
-
-              <p>
-                Health integration will eventually combine
-                sleep, recovery, workload, and calendar
-                intensity.
-              </p>
-            </section>
+            </div>
+            <h3>High-leverage day</h3>
+            <p>Your highest-value work is concentrated in a small number of decisions. Protect the first deep-work block.</p>
+            <div className="atlas-metric-row">
+              <div className="atlas-mini-metric"><strong>{metrics.criticalProjects}</strong><small>critical moves</small></div>
+              <div className="atlas-mini-metric"><strong>{metrics.openDecisions}</strong><small>open decisions</small></div>
+              <div className="atlas-mini-metric"><strong>{metrics.waitingOn}</strong><small>waiting on</small></div>
+            </div>
           </aside>
+        </section>
+
+        <div className="atlas-section-head">
+          <div><h3>Highest leverage after the mission</h3><p>Ranked by urgency, strategic value, actionability, and dependency relief.</p></div>
+          <button className="atlas-text-btn">VIEW ALL PROJECTS →</button>
         </div>
+
+        <section className="atlas-leverage-grid">
+          {rankedProjects.map((p,i)=>(
+            <article className="atlas-card atlas-leverage-card" key={p.id}>
+              <div className="atlas-rank">{String(i+1).padStart(2,"0")}</div>
+              <span className={`atlas-project-tag ${p.priority}`}>● {priorityLabel(p.priority)}</span>
+              <h4>{p.name}</h4>
+              <p>{p.next_milestone ?? "Advance the next meaningful milestone."}</p>
+              <div className="atlas-nextline"><strong>Next move:</strong> {p.next_action ?? "Define the next concrete execution step."}</div>
+            </article>
+          ))}
+        </section>
+
+        <section className="atlas-bottom-grid">
+          <article className="atlas-card atlas-compact-card">
+            <div className="atlas-section-head compact">
+              <div><h3>Executive agenda</h3><p>Where Atlas recommends your time goes.</p></div>
+              <button className="atlas-text-btn">CALENDAR →</button>
+            </div>
+            {agendaItems.map(item=>(
+              <div className="atlas-agenda-item" key={`${item.label}-${item.title}`}>
+                <div className="atlas-agenda-time">{item.label}</div>
+                <div><div className="atlas-agenda-title">{item.title}</div><div className="atlas-agenda-sub">{item.subtitle}</div></div>
+                <span className="atlas-agenda-pill">FOCUS</span>
+              </div>
+            ))}
+          </article>
+
+          <article className="atlas-card atlas-compact-card">
+            <div className="atlas-section-head compact">
+              <div><h3>Waiting on</h3><p>Dependencies with growing execution cost.</p></div>
+              <button className="atlas-text-btn">VIEW ALL →</button>
+            </div>
+            {waitingOn.length ? waitingOn.slice(0,4).map(item=>(
+              <div className="atlas-waiting-item" key={item.id}>
+                <div className="atlas-waiting-top"><strong>{item.person}</strong><span>{ageLabel(item.requested_on)}</span></div>
+                <p>{item.item}</p>
+              </div>
+            )) : <div className="atlas-empty">No external dependencies are currently waiting.</div>}
+          </article>
+        </section>
+
+        <section className="atlas-live-domain-strip">
+          <div><span>Projects</span><strong>{projects.length}</strong></div>
+          <div><span>Actions</span><strong>{actions.length}</strong></div>
+          <div><span>Decisions</span><strong>{decisions.length}</strong></div>
+          <div><span>Waiting On</span><strong>{waitingOn.length}</strong></div>
+          <div><span>Relationships</span><strong>{state.relationships.length}</strong></div>
+          <div><span>Signals</span><strong>{state.signals.length}</strong></div>
+        </section>
       </div>
 
-      <DetailDrawer
-        open={drawer !== null}
-        eyebrow={drawer?.eyebrow ?? ""}
-        title={drawer?.title ?? ""}
-        onClose={() => setDrawer(null)}
-      >
+      <DetailDrawer open={drawer !== null} eyebrow={drawer?.eyebrow ?? ""} title={drawer?.title ?? ""} onClose={()=>setDrawer(null)}>
         <p>{drawer?.body}</p>
       </DetailDrawer>
     </>

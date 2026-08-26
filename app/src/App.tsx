@@ -141,11 +141,10 @@ function App() {
     )
   }
 
-  const {
-    projects,
-    dashboard,
-    metrics,
-  } = executiveState
+const {
+  dashboard,
+  metrics,
+} = executiveState
 
   return (
     <div className="app-shell">
@@ -290,10 +289,7 @@ function App() {
           </div>
         </section>
 
-        <ExecutiveHome
-          dashboard={dashboard}
-          projects={projects}
-        />
+   <ExecutiveHome state={executiveState} />
 
         <section className="portfolio-section">
           <div className="portfolio-header">
