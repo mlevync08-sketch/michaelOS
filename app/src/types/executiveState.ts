@@ -1,0 +1,95 @@
+import type { Project } from "./project"
+import type { Signal } from "./signal"
+import type { ExecutiveDashboard } from "../engine/brain"
+
+export type ActionItem = {
+  id: string
+  project_id: string | null
+  title: string
+  bucket: string | null
+  priority: string
+  status: string
+  owner: string | null
+  due_date: string | null
+}
+
+export type DecisionItem = {
+  id: string
+  project_id: string | null
+  title: string
+  context: string | null
+  recommendation: string | null
+  consequence_of_delay: string | null
+  priority: string
+  status: string
+  due_date: string | null
+  impact: number | null
+  confidence: number | null
+}
+
+export type WaitingOnItem = {
+  id: string
+  project_id: string | null
+  person: string
+  item: string
+  requested_on: string | null
+  follow_up_on: string | null
+  priority: string
+  status: string
+}
+
+export type Relationship = {
+  id: string
+  name: string
+  role: string | null
+  company: string | null
+  health: number | null
+  last_interaction: string | null
+  project_ids: string[]
+  next_move: string | null
+  open_loops: number
+  notes: string | null
+  relevance_score: number | null
+  next_commitment: string | null
+}
+
+export type DailyBrief = {
+  id: string
+  brief_date: string
+  executive_summary: string | null
+  priorities: unknown
+  risks: unknown
+  decisions: unknown
+  recommendations: unknown
+}
+
+export type HealthProfile = {
+  health_data: Record<string, unknown> | null
+  updated_at: string | null
+}
+
+export type ExecutiveState = {
+  generatedAt: string
+
+  projects: Project[]
+  actions: ActionItem[]
+  decisions: DecisionItem[]
+  waitingOn: WaitingOnItem[]
+  relationships: Relationship[]
+
+  dailyBrief: DailyBrief | null
+  health: HealthProfile | null
+
+  signals: Signal[]
+
+  dashboard: ExecutiveDashboard
+
+  metrics: {
+    activeProjects: number
+    criticalProjects: number
+    needsAttention: number
+    openActions: number
+    openDecisions: number
+    waitingOn: number
+  }
+}

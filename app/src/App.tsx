@@ -1,23 +1,34 @@
-import { useEffect, useState } from 'react'
-import type { Session } from '@supabase/supabase-js'
-import { supabase } from './lib/supabase'
-import Login from './components/Login'
-import type { Project } from "./types/project"
-import type { Signal } from "./types/signal"
-import './App.css'
-import { runMichaelOSKernel } from "./kernel/kernel"
+import { useEffect, useMemo, useState } from "react"
+import type { Session } from "@supabase/supabase-js"
+
+import { supabase } from "./lib/supabase"
+import Login from "./components/Login"
 import ExecutiveHome from "./components/ExecutiveHome/ExecutiveHome"
 
+import { loadExecutiveRepositoryData } from "./repositories/executiveRepository"
+import { runMichaelOSKernel } from "./kernel/kernel"
+
+import type { ExecutiveState } from "./types/executiveState"
+
+import "./App.css"
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
+
   const [authLoading, setAuthLoading] = useState(true)
-  const [projects, setProjects] = useState<Project[]>([])
-  const [projectsLoading, setProjectsLoading] = useState(false)
+
+  const [executiveState, setExecutiveState] =
+    useState<ExecutiveState | null>(null)
+
+  const [stateLoading, setStateLoading] = useState(false)
+
+  const [stateError, setStateError] =
+    useState<string | null>(null)
 
   useEffect(() => {
     async function loadSession() {
       const { data } = await supabase.auth.getSession()
+
       setSession(data.session)
       setAuthLoading(false)
     }
@@ -26,116 +37,116 @@ function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-    })
+    } = supabase.auth.onAuthStateChange(
+      (_event, nextSession) => {
+        setSession(nextSession)
+      }
+    )
 
     return () => subscription.unsubscribe()
   }, [])
 
   useEffect(() => {
     if (!session) {
-      setProjects([])
+      setExecutiveState(null)
       return
     }
 
-    async function loadProjects() {
-      setProjectsLoading(true)
+    async function loadExecutiveState() {
+      setStateLoading(true)
+      setStateError(null)
 
-      const { data, error } = await supabase
-        .from('projects')
-        .select(
-          'id,name,status,health,priority,next_milestone,blocker,next_action,owner'
+      try {
+        const repositoryData =
+          await loadExecutiveRepositoryData()
+
+        const nextState = runMichaelOSKernel({
+          projects: repositoryData.projects,
+          actions: repositoryData.actions,
+          decisions: repositoryData.decisions,
+          waitingOn: repositoryData.waitingOn,
+          relationships: repositoryData.relationships,
+          dailyBrief: repositoryData.dailyBrief,
+          health: repositoryData.health,
+        })
+
+        setExecutiveState(nextState)
+      } catch (error) {
+        console.error(
+          "Failed to load MichaelOS ExecutiveState:",
+          error
         )
-        .order('name')
 
-      if (error) {
-        console.error('Project query failed:', error)
-      } else {
-        setProjects(data ?? [])
+        setStateError(
+          "MichaelOS could not assemble the executive state."
+        )
+      } finally {
+        setStateLoading(false)
       }
-
-      setProjectsLoading(false)
     }
 
-    loadProjects()
+    loadExecutiveState()
   }, [session])
+
+  const dateLabel = useMemo(() => {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    })
+      .format(new Date())
+      .toUpperCase()
+  }, [])
 
   async function signOut() {
     await supabase.auth.signOut()
   }
 
   if (authLoading) {
-    return <div className="loading-screen">Opening MichaelOS…</div>
+    return (
+      <div className="loading-screen">
+        Opening MichaelOS…
+      </div>
+    )
   }
 
   if (!session) {
     return <Login />
   }
 
-  const criticalCount = projects.filter(
-    (project) => project.priority === 'critical'
-  ).length
-
-  const attentionCount = projects.filter(
-    (project) => project.health === 'amber' || project.health === 'red'
-  ).length
-
-const projectSignals: Signal[] = projects.flatMap((project) => {
-  const signals: Signal[] = []
-
-  if (project.priority === "critical") {
-    signals.push({
-      id: `priority-${project.id}`,
-      source: "project",
-      title: `${project.name} is critical`,
-      summary: `${project.name} is currently marked as a critical priority.`,
-      importance: "critical",
-      confidence: 100,
-      occurred_at: new Date().toISOString(),
-      related_project_id: project.id,
-      related_person: project.owner,
-      actionable: true,
-    })
+  if (stateLoading && !executiveState) {
+    return (
+      <div className="loading-screen">
+        Atlas is assembling your executive state…
+      </div>
+    )
   }
 
-  if (project.health === "red" || project.health === "amber") {
-    signals.push({
-      id: `health-${project.id}`,
-      source: "project",
-      title: `${project.name} needs attention`,
-      summary: `${project.name} is currently ${project.health}.`,
-      importance: project.health === "red" ? "high" : "medium",
-      confidence: 100,
-      occurred_at: new Date().toISOString(),
-      related_project_id: project.id,
-      related_person: project.owner,
-      actionable: true,
-    })
+  if (stateError) {
+    return (
+      <div className="loading-screen">
+        <div>
+          <strong>MichaelOS connection error</strong>
+          <p>{stateError}</p>
+        </div>
+      </div>
+    )
   }
 
-  if (project.blocker && project.blocker !== "None") {
-    signals.push({
-      id: `blocker-${project.id}`,
-      source: "project",
-      title: `${project.name} has an active blocker`,
-      summary: project.blocker,
-      importance: "high",
-      confidence: 100,
-      occurred_at: new Date().toISOString(),
-      related_project_id: project.id,
-      related_person: project.owner,
-      actionable: true,
-    })
+  if (!executiveState) {
+    return (
+      <div className="loading-screen">
+        No executive state available.
+      </div>
+    )
   }
 
-  return signals
-})
+  const {
+    projects,
+    dashboard,
+    metrics,
+  } = executiveState
 
- const dashboard = runMichaelOSKernel({
-  projects,
-  signals: projectSignals,
-})
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -149,17 +160,57 @@ const projectSignals: Signal[] = projects.flatMap((project) => {
         </div>
 
         <nav className="nav">
-          <button className="nav-item active">Today</button>
-          <button className="nav-item">Projects</button>
-          <button className="nav-item">Actions</button>
-          <button className="nav-item">Relationships</button>
-          <button className="nav-item">Waiting On</button>
-          <button className="nav-item">Decisions</button>
-          <button className="nav-item">Weekly Review</button>
-          <button className="nav-item">Health</button>
+          <button className="nav-item active">
+            Today
+          </button>
+
+          <button className="nav-item">
+            Projects
+          </button>
+
+          <button className="nav-item">
+            Actions
+            <span>{metrics.openActions}</span>
+          </button>
+
+          <button className="nav-item">
+            Relationships
+          </button>
+
+          <button className="nav-item">
+            Waiting On
+            <span>{metrics.waitingOn}</span>
+          </button>
+
+          <button className="nav-item">
+            Decisions
+            <span>{metrics.openDecisions}</span>
+          </button>
+
+          <button className="nav-item">
+            Weekly Review
+          </button>
+
+          <button className="nav-item">
+            Health
+          </button>
         </nav>
 
-        <button className="sign-out" onClick={signOut}>
+        <div
+          style={{
+            marginTop: "auto",
+            padding: "12px 0",
+            fontSize: "12px",
+            opacity: 0.65,
+          }}
+        >
+          Kernel LIVE
+        </div>
+
+        <button
+          className="sign-out"
+          onClick={signOut}
+        >
           Sign out
         </button>
       </aside>
@@ -167,102 +218,156 @@ const projectSignals: Signal[] = projects.flatMap((project) => {
       <main className="main-content">
         <header className="page-header">
           <div>
-            <p className="eyebrow">FRIDAY · AUGUST 21</p>
+            <p className="eyebrow">
+              {dateLabel}
+            </p>
+
             <h1>Good morning, Michael.</h1>
+
             <p className="subtitle">
-              Here's what deserves your attention today.
+              Here&apos;s what deserves your
+              attention today.
             </p>
           </div>
 
           <div className="focus-score">
             <span>Focus Score</span>
-   <strong>{dashboard.metrics.focusScore}</strong>
+
+            <strong>
+              {dashboard.metrics.focusScore}
+            </strong>
           </div>
         </header>
 
         <section className="metric-grid">
           <div className="metric-card">
             <span>Active Projects</span>
-<strong>{projectsLoading ? '—' : projects.length}</strong>
+            <strong>
+              {metrics.activeProjects}
+            </strong>
           </div>
 
           <div className="metric-card">
             <span>Critical</span>
-            <strong>{projectsLoading ? '—' : criticalCount}</strong>
+            <strong>
+              {metrics.criticalProjects}
+            </strong>
           </div>
 
           <div className="metric-card">
             <span>Needs Attention</span>
-            <strong>{projectsLoading ? '—' : attentionCount}</strong>
+            <strong>
+              {metrics.needsAttention}
+            </strong>
+          </div>
+
+          <div className="metric-card">
+            <span>Open Decisions</span>
+            <strong>
+              {metrics.openDecisions}
+            </strong>
+          </div>
+
+          <div className="metric-card">
+            <span>Waiting On</span>
+            <strong>
+              {metrics.waitingOn}
+            </strong>
+          </div>
+
+          <div className="metric-card">
+            <span>Open Actions</span>
+            <strong>
+              {metrics.openActions}
+            </strong>
           </div>
 
           <div className="metric-card">
             <span>System</span>
-            <strong className="live">LIVE</strong>
+            <strong className="live">
+              LIVE
+            </strong>
           </div>
         </section>
 
-<ExecutiveHome
-  dashboard={dashboard}
-  projects={projects}
-/>
+        <ExecutiveHome
+          dashboard={dashboard}
+          projects={projects}
+        />
 
         <section className="portfolio-section">
           <div className="portfolio-header">
             <div>
-              <p className="section-label">ACTIVE PORTFOLIO</p>
-              <h2>Projects</h2>
+              <p className="section-label">
+                MICHAEL OS EXECUTIVE STATE
+              </p>
+
+              <h2>Live Domain Summary</h2>
             </div>
 
-            <span>{projects.length} active</span>
+            <span>
+              Generated{" "}
+              {new Date(
+                executiveState.generatedAt
+              ).toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </span>
           </div>
 
-          {projectsLoading ? (
-            <div className="portfolio-loading">Loading portfolio…</div>
-          ) : (
-            <div className="project-grid">
-              {projects.map((project) => (
-                <article className="project-card" key={project.id}>
-                  <div className="project-card-top">
-                    <div className="project-health">
-                      <span
-                        className={`health-dot ${project.health}`}
-                      />
-                      <span>{project.health}</span>
-                    </div>
-
-                    <span className={`priority-badge ${project.priority}`}>
-                      {project.priority}
-                    </span>
-                  </div>
-
-                  <h3>{project.name}</h3>
-
-                  <div className="project-detail">
-                    <span>Next milestone</span>
-                    <strong>{project.next_milestone || 'Not set'}</strong>
-                  </div>
-
-                  <div className="project-detail">
-                    <span>Critical action</span>
-                    <strong>{project.next_action || 'Not set'}</strong>
-                  </div>
-
-                  {project.blocker && project.blocker !== 'None' && (
-                    <div className="project-blocker">
-                      <span>Blocker</span>
-                      <strong>{project.blocker}</strong>
-                    </div>
-                  )}
-
-                  <div className="project-footer">
-                    <span>{project.owner || 'Unassigned'}</span>
-                    <span>{project.status}</span>
-                  </div>
-                </article>
-              ))}
+          <div className="metric-grid">
+            <div className="metric-card">
+              <span>Projects</span>
+              <strong>
+                {executiveState.projects.length}
+              </strong>
             </div>
-          )}
+
+            <div className="metric-card">
+              <span>Actions</span>
+              <strong>
+                {executiveState.actions.length}
+              </strong>
+            </div>
+
+            <div className="metric-card">
+              <span>Decisions</span>
+              <strong>
+                {executiveState.decisions.length}
+              </strong>
+            </div>
+
+            <div className="metric-card">
+              <span>Waiting On</span>
+              <strong>
+                {executiveState.waitingOn.length}
+              </strong>
+            </div>
+
+            <div className="metric-card">
+              <span>Relationships</span>
+              <strong>
+                {executiveState.relationships.length}
+              </strong>
+            </div>
+
+            <div className="metric-card">
+              <span>Signals</span>
+              <strong>
+                {executiveState.signals.length}
+              </strong>
+            </div>
+
+            <div className="metric-card">
+              <span>Health</span>
+              <strong>
+                {executiveState.health
+                  ? "CONNECTED"
+                  : "—"}
+              </strong>
+            </div>
+          </div>
         </section>
       </main>
     </div>
