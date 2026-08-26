@@ -1,28 +1,27 @@
-export type ExecutiveNarrative = {
-  headline: string
-  summary: string
-  recommendation: string
-  confidence: number
-}
+import type { ExecutiveNarrative } from "../types/narrative"
 
 export function buildExecutiveNarrative(input: {
   missionTitle: string
   missionDetail: string
   whyToday: string
-  ifIgnored: string
-  nextMove: string
+  recommendation: string
   confidence: number
 }): ExecutiveNarrative {
   return {
     headline: input.missionTitle,
 
-    summary:
-      `${input.missionDetail} ${input.whyToday}`,
+    executiveJudgment: `${input.missionDetail}
 
-    recommendation:
-      input.nextMove,
+${input.whyToday}`,
 
-    confidence:
-      input.confidence,
+    supportingEvidence: [
+      input.whyToday,
+    ],
+
+    recommendation: input.recommendation,
+
+    confidence: input.confidence,
+
+    generated_at: new Date().toISOString(),
   }
 }

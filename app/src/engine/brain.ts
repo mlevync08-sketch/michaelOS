@@ -1,8 +1,11 @@
 import type { Project } from "../types/project"
 import type { Signal } from "../types/signal"
+import type { ExecutiveNarrative } from "../types/narrative"
+
 import { rankProjects } from "./prioritizer"
 import { reasonAboutProject } from "./reasoner"
 import { discoverPatterns } from "./signals"
+import { buildExecutiveNarrative } from "./narrative"
 
 export type StrategicDiscovery = {
   title: string
@@ -34,6 +37,8 @@ export type ExecutiveDashboard = {
   }
 
   discoveries: StrategicDiscovery[]
+
+  narrative: ExecutiveNarrative
 }
 
 export function buildExecutiveDashboard(
@@ -90,6 +95,17 @@ export function buildExecutiveDashboard(
       },
 
       discoveries,
+
+      narrative: buildExecutiveNarrative({
+        missionTitle: "No active projects.",
+        missionDetail:
+          "Add or activate projects to begin executive prioritization.",
+        whyToday:
+          "There is no project data available to prioritize.",
+        recommendation:
+          "Add your current priorities to MichaelOS.",
+        confidence: 0,
+      }),
     }
   }
 
@@ -163,5 +179,15 @@ export function buildExecutiveDashboard(
     },
 
     discoveries,
+
+    narrative: buildExecutiveNarrative({
+      missionTitle: topProject.name,
+      missionDetail:
+        topProject.next_action ??
+        "Advance the next meaningful milestone.",
+      whyToday: reasoning.why,
+      recommendation: reasoning.recommendation,
+      confidence: reasoning.confidence,
+    }),
   }
 }
