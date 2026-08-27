@@ -5,6 +5,7 @@ import type { ActionIntelligence } from "../engine/actionEngine"
 import type { DecisionIntelligence } from "../engine/decisionEngine"
 import type { DependencyIntelligence } from "../engine/dependencyEngine"
 import type { RelationshipIntelligence } from "../engine/relationshipEngine"
+import type { WeeklyReviewIntelligence } from "../engine/weeklyReviewEngine"
 
 export type ActionItem = {
   id: string
@@ -123,10 +124,12 @@ export type ExecutiveState = {
   recommendations: ExecutiveRecommendation[]
   risks: ExecutiveRisk[]
   relationshipAlerts: RelationshipAlert[]
+
   actionIntelligence: ActionIntelligence
   decisionIntelligence: DecisionIntelligence
   dependencyIntelligence: DependencyIntelligence
   relationshipIntelligence: RelationshipIntelligence
+  weeklyReviewIntelligence: WeeklyReviewIntelligence
 
   projects: Project[]
   actions: ActionItem[]
