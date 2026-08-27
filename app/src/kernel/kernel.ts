@@ -19,6 +19,7 @@ import {
   buildRisks,
 } from "../engine/executiveEngine"
 import { buildActionIntelligence } from "../engine/actionEngine"
+import { buildDecisionIntelligence } from "../engine/decisionEngine"
 
 export type KernelInput = {
   projects: Project[]
@@ -173,6 +174,12 @@ export function runMichaelOSKernel(
       projects: input.projects,
     })
 
+  const decisionIntelligence =
+    buildDecisionIntelligence({
+      decisions: input.decisions,
+      projects: input.projects,
+    })
+
   return {
     generatedAt: new Date().toISOString(),
 
@@ -185,6 +192,7 @@ export function runMichaelOSKernel(
     relationshipAlerts:
       buildRelationshipAlerts(engineInput),
     actionIntelligence,
+    decisionIntelligence,
 
     projects: input.projects,
     actions: input.actions,
@@ -211,10 +219,10 @@ export function runMichaelOSKernel(
             project.health === "amber" ||
             project.health === "red"
         ).length,
-      // Count the useful action universe, including the
-      // project-next-action fallback during migration.
-      openActions: actionIntelligence.stats.total,
-      openDecisions: input.decisions.length,
+      openActions:
+        actionIntelligence.stats.total,
+      openDecisions:
+        decisionIntelligence.stats.total,
       waitingOn: input.waitingOn.length,
     },
   }
