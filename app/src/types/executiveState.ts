@@ -3,6 +3,7 @@ import type { Signal } from "./signal"
 import type { ExecutiveDashboard } from "../engine/brain"
 import type { ActionIntelligence } from "../engine/actionEngine"
 import type { DecisionIntelligence } from "../engine/decisionEngine"
+import type { DependencyIntelligence } from "../engine/dependencyEngine"
 
 export type ActionItem = {
   id: string
@@ -116,7 +117,6 @@ export type ExecutiveMission = {
 
 export type ExecutiveState = {
   generatedAt: string
-
   mission: ExecutiveMission
   executiveAgenda: ExecutiveAgendaItem[]
   recommendations: ExecutiveRecommendation[]
@@ -124,6 +124,7 @@ export type ExecutiveState = {
   relationshipAlerts: RelationshipAlert[]
   actionIntelligence: ActionIntelligence
   decisionIntelligence: DecisionIntelligence
+  dependencyIntelligence: DependencyIntelligence
 
   projects: Project[]
   actions: ActionItem[]
