@@ -4,6 +4,7 @@ import type { ExecutiveDashboard } from "../engine/brain"
 import type { ActionIntelligence } from "../engine/actionEngine"
 import type { DecisionIntelligence } from "../engine/decisionEngine"
 import type { DependencyIntelligence } from "../engine/dependencyEngine"
+import type { RelationshipIntelligence } from "../engine/relationshipEngine"
 
 export type ActionItem = {
   id: string
@@ -125,6 +126,7 @@ export type ExecutiveState = {
   actionIntelligence: ActionIntelligence
   decisionIntelligence: DecisionIntelligence
   dependencyIntelligence: DependencyIntelligence
+  relationshipIntelligence: RelationshipIntelligence
 
   projects: Project[]
   actions: ActionItem[]

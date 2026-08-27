@@ -21,6 +21,7 @@ import {
 import { buildActionIntelligence } from "../engine/actionEngine"
 import { buildDecisionIntelligence } from "../engine/decisionEngine"
 import { buildDependencyIntelligence } from "../engine/dependencyEngine"
+import { buildRelationshipIntelligence } from "../engine/relationshipEngine"
 
 export type KernelInput = {
   projects: Project[]
@@ -165,6 +166,11 @@ export function runMichaelOSKernel(input: KernelInput): ExecutiveState {
     projects: input.projects,
   })
 
+  const relationshipIntelligence = buildRelationshipIntelligence({
+    relationships: input.relationships,
+    projects: input.projects,
+  })
+
   return {
     generatedAt: new Date().toISOString(),
     mission: buildExecutiveMission(engineInput),
@@ -175,6 +181,7 @@ export function runMichaelOSKernel(input: KernelInput): ExecutiveState {
     actionIntelligence,
     decisionIntelligence,
     dependencyIntelligence,
+    relationshipIntelligence,
 
     projects: input.projects,
     actions: input.actions,
