@@ -6,6 +6,7 @@ import type { DecisionIntelligence } from "../engine/decisionEngine"
 import type { DependencyIntelligence } from "../engine/dependencyEngine"
 import type { RelationshipIntelligence } from "../engine/relationshipEngine"
 import type { WeeklyReviewIntelligence } from "../engine/weeklyReviewEngine"
+import type { CapacityIntelligence } from "../engine/capacityEngine"
 
 export type ActionItem = {
   id: string
@@ -77,8 +78,16 @@ export type ExecutiveAgendaItem = {
   id: string
   title: string
   subtitle: string
-  source: "action" | "decision" | "project" | "dependency"
-  priority: "critical" | "high" | "medium" | "low"
+  source:
+    | "action"
+    | "decision"
+    | "project"
+    | "dependency"
+  priority:
+    | "critical"
+    | "high"
+    | "medium"
+    | "low"
   projectId: string | null
   dueDate: string | null
 }
@@ -95,7 +104,11 @@ export type ExecutiveRisk = {
   id: string
   title: string
   detail: string
-  severity: "critical" | "high" | "medium" | "low"
+  severity:
+    | "critical"
+    | "high"
+    | "medium"
+    | "low"
 }
 
 export type RelationshipAlert = {
@@ -113,12 +126,17 @@ export type ExecutiveMission = {
   successLooksLike: string
   estimatedFocusMinutes: number
   confidence: number
-  source: "decision" | "action" | "dependency" | "project"
+  source:
+    | "decision"
+    | "action"
+    | "dependency"
+    | "project"
   sourceId: string
 }
 
 export type ExecutiveState = {
   generatedAt: string
+
   mission: ExecutiveMission
   executiveAgenda: ExecutiveAgendaItem[]
   recommendations: ExecutiveRecommendation[]
@@ -130,6 +148,7 @@ export type ExecutiveState = {
   dependencyIntelligence: DependencyIntelligence
   relationshipIntelligence: RelationshipIntelligence
   weeklyReviewIntelligence: WeeklyReviewIntelligence
+  capacityIntelligence: CapacityIntelligence
 
   projects: Project[]
   actions: ActionItem[]

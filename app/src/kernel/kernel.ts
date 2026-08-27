@@ -23,6 +23,7 @@ import { buildDecisionIntelligence } from "../engine/decisionEngine"
 import { buildDependencyIntelligence } from "../engine/dependencyEngine"
 import { buildRelationshipIntelligence } from "../engine/relationshipEngine"
 import { buildWeeklyReviewIntelligence } from "../engine/weeklyReviewEngine"
+import { buildCapacityIntelligence } from "../engine/capacityEngine"
 
 export type KernelInput = {
   projects: Project[]
@@ -35,7 +36,9 @@ export type KernelInput = {
   signals?: Signal[]
 }
 
-function buildProjectSignals(projects: Project[]): Signal[] {
+function buildProjectSignals(
+  projects: Project[]
+): Signal[] {
   return projects.flatMap((project) => {
     const signals: Signal[] = []
 
@@ -54,13 +57,19 @@ function buildProjectSignals(projects: Project[]): Signal[] {
       })
     }
 
-    if (project.health === "red" || project.health === "amber") {
+    if (
+      project.health === "red" ||
+      project.health === "amber"
+    ) {
       signals.push({
         id: `health-${project.id}`,
         source: "project",
         title: `${project.name} needs attention`,
         summary: `${project.name} is currently ${project.health}.`,
-        importance: project.health === "red" ? "high" : "medium",
+        importance:
+          project.health === "red"
+            ? "high"
+            : "medium",
         confidence: 100,
         occurred_at: new Date().toISOString(),
         related_project_id: project.id,
@@ -69,7 +78,10 @@ function buildProjectSignals(projects: Project[]): Signal[] {
       })
     }
 
-    if (project.blocker && project.blocker !== "None") {
+    if (
+      project.blocker &&
+      project.blocker !== "None"
+    ) {
       signals.push({
         id: `blocker-${project.id}`,
         source: "project",
@@ -88,7 +100,9 @@ function buildProjectSignals(projects: Project[]): Signal[] {
   })
 }
 
-function buildDecisionSignals(decisions: DecisionItem[]): Signal[] {
+function buildDecisionSignals(
+  decisions: DecisionItem[]
+): Signal[] {
   return decisions.map((decision) => ({
     id: `decision-${decision.id}`,
     source: "decision",
@@ -111,7 +125,9 @@ function buildDecisionSignals(decisions: DecisionItem[]): Signal[] {
   }))
 }
 
-function buildWaitingSignals(waitingOn: WaitingOnItem[]): Signal[] {
+function buildWaitingSignals(
+  waitingOn: WaitingOnItem[]
+): Signal[] {
   return waitingOn.map((item) => ({
     id: `waiting-${item.id}`,
     source: "relationship",
@@ -124,14 +140,18 @@ function buildWaitingSignals(waitingOn: WaitingOnItem[]): Signal[] {
         ? "high"
         : "medium",
     confidence: 100,
-    occurred_at: item.requested_on ?? new Date().toISOString(),
+    occurred_at:
+      item.requested_on ??
+      new Date().toISOString(),
     related_project_id: item.project_id,
     related_person: item.person,
     actionable: true,
   }))
 }
 
-export function runMichaelOSKernel(input: KernelInput): ExecutiveState {
+export function runMichaelOSKernel(
+  input: KernelInput
+): ExecutiveState {
   const signals = [
     ...buildProjectSignals(input.projects),
     ...buildDecisionSignals(input.decisions),
@@ -152,45 +172,72 @@ export function runMichaelOSKernel(input: KernelInput): ExecutiveState {
     relationships: input.relationships,
   }
 
-  const actionIntelligence = buildActionIntelligence({
-    actions: input.actions,
-    projects: input.projects,
-  })
+  const actionIntelligence =
+    buildActionIntelligence({
+      actions: input.actions,
+      projects: input.projects,
+    })
 
-  const decisionIntelligence = buildDecisionIntelligence({
-    decisions: input.decisions,
-    projects: input.projects,
-  })
+  const decisionIntelligence =
+    buildDecisionIntelligence({
+      decisions: input.decisions,
+      projects: input.projects,
+    })
 
-  const dependencyIntelligence = buildDependencyIntelligence({
-    waitingOn: input.waitingOn,
-    projects: input.projects,
-  })
+  const dependencyIntelligence =
+    buildDependencyIntelligence({
+      waitingOn: input.waitingOn,
+      projects: input.projects,
+    })
 
-  const relationshipIntelligence = buildRelationshipIntelligence({
-    relationships: input.relationships,
-    projects: input.projects,
-  })
+  const relationshipIntelligence =
+    buildRelationshipIntelligence({
+      relationships: input.relationships,
+      projects: input.projects,
+    })
 
-  const recommendations = buildRecommendations(engineInput)
+  const recommendations =
+    buildRecommendations(engineInput)
+
   const risks = buildRisks(engineInput)
-  const relationshipAlerts = buildRelationshipAlerts(engineInput)
 
-  const weeklyReviewIntelligence = buildWeeklyReviewIntelligence({
-    projects: input.projects,
-    actionIntelligence,
-    decisionIntelligence,
-    dependencyIntelligence,
-    relationshipIntelligence,
-    recommendations,
-    risks,
-    relationshipAlerts,
-  })
+  const relationshipAlerts =
+    buildRelationshipAlerts(engineInput)
+
+  const weeklyReviewIntelligence =
+    buildWeeklyReviewIntelligence({
+      projects: input.projects,
+      actionIntelligence,
+      decisionIntelligence,
+      dependencyIntelligence,
+      relationshipIntelligence,
+      recommendations,
+      risks,
+      relationshipAlerts,
+    })
+
+  const mission =
+    buildExecutiveMission(engineInput)
+
+  const capacityIntelligence =
+    buildCapacityIntelligence({
+      health: input.health,
+      projects: input.projects,
+      actionIntelligence,
+      decisionIntelligence,
+      dependencyIntelligence,
+      currentFocusScore:
+        dashboard.metrics.focusScore,
+      missionMinutes:
+        mission.estimatedFocusMinutes,
+    })
 
   return {
     generatedAt: new Date().toISOString(),
-    mission: buildExecutiveMission(engineInput),
-    executiveAgenda: buildExecutiveAgenda(engineInput),
+
+    mission,
+    executiveAgenda:
+      buildExecutiveAgenda(engineInput),
     recommendations,
     risks,
     relationshipAlerts,
@@ -200,30 +247,45 @@ export function runMichaelOSKernel(input: KernelInput): ExecutiveState {
     dependencyIntelligence,
     relationshipIntelligence,
     weeklyReviewIntelligence,
+    capacityIntelligence,
 
     projects: input.projects,
     actions: input.actions,
     decisions: input.decisions,
     waitingOn: input.waitingOn,
     relationships: input.relationships,
+
     dailyBrief: input.dailyBrief,
     health: input.health,
+
     signals,
     dashboard,
 
     metrics: {
-      activeProjects: input.projects.length,
-      criticalProjects: input.projects.filter(
-        (project) => project.priority === "critical"
-      ).length,
-      needsAttention: input.projects.filter(
-        (project) =>
-          project.health === "amber" ||
-          project.health === "red"
-      ).length,
-      openActions: actionIntelligence.stats.total,
-      openDecisions: decisionIntelligence.stats.total,
-      waitingOn: dependencyIntelligence.stats.total,
+      activeProjects:
+        input.projects.length,
+
+      criticalProjects:
+        input.projects.filter(
+          (project) =>
+            project.priority === "critical"
+        ).length,
+
+      needsAttention:
+        input.projects.filter(
+          (project) =>
+            project.health === "amber" ||
+            project.health === "red"
+        ).length,
+
+      openActions:
+        actionIntelligence.stats.total,
+
+      openDecisions:
+        decisionIntelligence.stats.total,
+
+      waitingOn:
+        dependencyIntelligence.stats.total,
     },
   }
 }
