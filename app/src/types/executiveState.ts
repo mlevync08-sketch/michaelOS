@@ -1,7 +1,7 @@
-
 import type { Project } from "./project"
 import type { Signal } from "./signal"
 import type { ExecutiveDashboard } from "../engine/brain"
+import type { ActionIntelligence } from "../engine/actionEngine"
 
 export type ActionItem = {
   id: string
@@ -115,20 +115,26 @@ export type ExecutiveMission = {
 
 export type ExecutiveState = {
   generatedAt: string
+
   mission: ExecutiveMission
   executiveAgenda: ExecutiveAgendaItem[]
   recommendations: ExecutiveRecommendation[]
   risks: ExecutiveRisk[]
   relationshipAlerts: RelationshipAlert[]
+  actionIntelligence: ActionIntelligence
+
   projects: Project[]
   actions: ActionItem[]
   decisions: DecisionItem[]
   waitingOn: WaitingOnItem[]
   relationships: Relationship[]
+
   dailyBrief: DailyBrief | null
   health: HealthProfile | null
+
   signals: Signal[]
   dashboard: ExecutiveDashboard
+
   metrics: {
     activeProjects: number
     criticalProjects: number
