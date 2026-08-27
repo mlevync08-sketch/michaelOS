@@ -4,6 +4,7 @@ import type {
   DailyBrief,
   DecisionItem,
   HealthProfile,
+  MemoryItem,
   Relationship,
   WaitingOnItem,
 } from "../types/executiveState"
@@ -15,6 +16,7 @@ export type ExecutiveRepositoryData = {
   decisions: DecisionItem[]
   waitingOn: WaitingOnItem[]
   relationships: Relationship[]
+  memories: MemoryItem[]
   dailyBrief: DailyBrief | null
   health: HealthProfile | null
 }
@@ -26,6 +28,7 @@ export async function loadExecutiveRepositoryData(): Promise<ExecutiveRepository
     decisionsResult,
     waitingOnResult,
     relationshipsResult,
+    memoriesResult,
     dailyBriefResult,
     healthResult,
   ] = await Promise.all([
@@ -42,7 +45,10 @@ export async function loadExecutiveRepositoryData(): Promise<ExecutiveRepository
         "id,project_id,title,bucket,priority,status,owner,due_date"
       )
       .neq("status", "done")
-      .order("due_date", { ascending: true, nullsFirst: false }),
+      .order("due_date", {
+        ascending: true,
+        nullsFirst: false,
+      }),
 
     supabase
       .from("decisions")
@@ -50,7 +56,10 @@ export async function loadExecutiveRepositoryData(): Promise<ExecutiveRepository
         "id,project_id,title,context,recommendation,consequence_of_delay,priority,status,due_date,impact,confidence"
       )
       .neq("status", "decided")
-      .order("impact", { ascending: false, nullsFirst: false }),
+      .order("impact", {
+        ascending: false,
+        nullsFirst: false,
+      }),
 
     supabase
       .from("waiting_on")
@@ -58,7 +67,10 @@ export async function loadExecutiveRepositoryData(): Promise<ExecutiveRepository
         "id,project_id,person,item,requested_on,follow_up_on,priority,status"
       )
       .neq("status", "done")
-      .order("requested_on", { ascending: true, nullsFirst: false }),
+      .order("requested_on", {
+        ascending: true,
+        nullsFirst: false,
+      }),
 
     supabase
       .from("relationships")
@@ -71,11 +83,23 @@ export async function loadExecutiveRepositoryData(): Promise<ExecutiveRepository
       }),
 
     supabase
+      .from("memories")
+      .select(
+        "id,memory_type,title,content,importance,confidence,status,occurred_at,review_on,project_id,relationship_id,source,source_ref,tags"
+      )
+      .neq("status", "archived")
+      .order("occurred_at", {
+        ascending: false,
+      }),
+
+    supabase
       .from("daily_briefs")
       .select(
         "id,brief_date,executive_summary,priorities,risks,decisions,recommendations"
       )
-      .order("brief_date", { ascending: false })
+      .order("brief_date", {
+        ascending: false,
+      })
       .limit(1)
       .maybeSingle(),
 
@@ -92,22 +116,53 @@ export async function loadExecutiveRepositoryData(): Promise<ExecutiveRepository
     decisionsResult.error,
     waitingOnResult.error,
     relationshipsResult.error,
+    memoriesResult.error,
     dailyBriefResult.error,
     healthResult.error,
   ].filter(Boolean)
 
   if (errors.length > 0) {
-    console.error("MichaelOS repository errors:", errors)
-    throw new Error("Failed to load MichaelOS executive state.")
+    console.error(
+      "MichaelOS repository errors:",
+      errors
+    )
+
+    throw new Error(
+      "Failed to load MichaelOS executive state."
+    )
   }
 
   return {
-    projects: (projectsResult.data ?? []) as Project[],
-    actions: (actionsResult.data ?? []) as ActionItem[],
-    decisions: (decisionsResult.data ?? []) as DecisionItem[],
-    waitingOn: (waitingOnResult.data ?? []) as WaitingOnItem[],
-    relationships: (relationshipsResult.data ?? []) as Relationship[],
-    dailyBrief: (dailyBriefResult.data ?? null) as DailyBrief | null,
-    health: (healthResult.data ?? null) as HealthProfile | null,
+    projects:
+      (projectsResult.data ??
+        []) as Project[],
+
+    actions:
+      (actionsResult.data ??
+        []) as ActionItem[],
+
+    decisions:
+      (decisionsResult.data ??
+        []) as DecisionItem[],
+
+    waitingOn:
+      (waitingOnResult.data ??
+        []) as WaitingOnItem[],
+
+    relationships:
+      (relationshipsResult.data ??
+        []) as Relationship[],
+
+    memories:
+      (memoriesResult.data ??
+        []) as MemoryItem[],
+
+    dailyBrief:
+      (dailyBriefResult.data ??
+        null) as DailyBrief | null,
+
+    health:
+      (healthResult.data ??
+        null) as HealthProfile | null,
   }
 }

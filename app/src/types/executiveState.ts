@@ -7,6 +7,7 @@ import type { DependencyIntelligence } from "../engine/dependencyEngine"
 import type { RelationshipIntelligence } from "../engine/relationshipEngine"
 import type { WeeklyReviewIntelligence } from "../engine/weeklyReviewEngine"
 import type { CapacityIntelligence } from "../engine/capacityEngine"
+import type { MemoryIntelligence } from "../engine/memoryIntelligenceEngine"
 
 export type ActionItem = {
   id: string
@@ -57,6 +58,40 @@ export type Relationship = {
   notes: string | null
   relevance_score: number | null
   next_commitment: string | null
+}
+
+export type MemoryItem = {
+  id: string
+
+  memory_type:
+    | "commitment"
+    | "decision"
+    | "lesson"
+    | "pattern"
+    | "fact"
+    | "context"
+
+  title: string
+  content: string
+
+  importance: number
+  confidence: number
+
+  status:
+    | "active"
+    | "resolved"
+    | "archived"
+
+  occurred_at: string
+  review_on: string | null
+
+  project_id: string | null
+  relationship_id: string | null
+
+  source: string | null
+  source_ref: string | null
+
+  tags: string[]
 }
 
 export type DailyBrief = {
@@ -149,12 +184,14 @@ export type ExecutiveState = {
   relationshipIntelligence: RelationshipIntelligence
   weeklyReviewIntelligence: WeeklyReviewIntelligence
   capacityIntelligence: CapacityIntelligence
+  memoryIntelligence: MemoryIntelligence
 
   projects: Project[]
   actions: ActionItem[]
   decisions: DecisionItem[]
   waitingOn: WaitingOnItem[]
   relationships: Relationship[]
+  memories: MemoryItem[]
 
   dailyBrief: DailyBrief | null
   health: HealthProfile | null
@@ -169,5 +206,6 @@ export type ExecutiveState = {
     openActions: number
     openDecisions: number
     waitingOn: number
+    memories: number
   }
 }
