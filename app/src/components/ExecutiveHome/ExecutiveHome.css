@@ -60,6 +60,35 @@
   color: #0d2433;
 }
 
+.atlas-consensus-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.atlas-consensus-pill,
+.atlas-mission-score {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.atlas-consensus-pill {
+  background: #e9f8f5;
+  color: #147d69;
+}
+
+.atlas-mission-score {
+  background: #f1f5f6;
+  color: #6d8189;
+}
+
 .atlas-mission h2 {
   font-size: 31px;
   line-height: 1.12;
@@ -72,6 +101,34 @@
   color: #526873;
   font-size: 14px;
   line-height: 1.55;
+}
+
+.atlas-narrative-lead {
+  max-width: 780px;
+}
+
+.atlas-next-move-callout {
+  margin-top: 17px;
+  background: #0c2734;
+  color: white;
+  border-radius: 12px;
+  padding: 14px 16px;
+  max-width: 780px;
+}
+
+.atlas-next-move-callout small {
+  display: block;
+  color: #7de2dc;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  margin-bottom: 5px;
+}
+
+.atlas-next-move-callout strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .atlas-reason-grid {
@@ -106,6 +163,35 @@
   line-height: 1.45;
   margin: 7px 0 0;
   color: #29414d;
+}
+
+.atlas-tradeoff-strip {
+  width: 100%;
+  border: 1px solid #eadfca;
+  background: #fffbf3;
+  border-radius: 11px;
+  padding: 11px 13px;
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 10px;
+  align-items: start;
+  text-align: left;
+  color: inherit;
+}
+
+.atlas-tradeoff-strip span {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #a97424;
+}
+
+.atlas-tradeoff-strip p {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #725d3a;
 }
 
 .atlas-action-row {
@@ -189,6 +275,38 @@
   line-height: 1.5;
 }
 
+.atlas-engine-consensus {
+  margin: 14px 0;
+  border-top: 1px solid #edf1f2;
+  padding-top: 12px;
+}
+
+.atlas-engine-consensus small {
+  display: block;
+  text-align: center;
+  font-size: 8px;
+  color: #8a9aa2;
+  letter-spacing: 0.11em;
+  font-weight: 800;
+}
+
+.atlas-engine-list {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 7px;
+}
+
+.atlas-engine-list span {
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: #eef6f6;
+  color: #3b7779;
+  font-size: 8px;
+  font-weight: 700;
+}
+
 .atlas-metric-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -235,12 +353,12 @@
   font-size: 10px;
 }
 
-.atlas-text-btn {
-  border: 0;
-  background: transparent;
-  color: #348f90;
-  font-size: 10px;
-  font-weight: 700;
+.atlas-graph-status,
+.atlas-dependency-count {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #6e8a91;
 }
 
 .atlas-leverage-grid {
@@ -253,6 +371,17 @@
   padding: 18px;
   position: relative;
   overflow: hidden;
+}
+
+.atlas-recommendation-card {
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.atlas-recommendation-card:hover {
+  border-color: #b9d8da;
+  box-shadow: 0 8px 22px rgba(21, 66, 76, 0.05);
 }
 
 .atlas-rank {
@@ -279,20 +408,52 @@
   color: #ad464b;
 }
 
-.atlas-project-tag.medium {
+.atlas-project-tag.high {
   background: #fbf4e8;
   color: #a26a14;
 }
 
+.atlas-project-tag.medium {
+  background: #f2f5f6;
+  color: #70838b;
+}
+
+.atlas-project-tag.low {
+  background: #f5f7f8;
+  color: #8b9aa1;
+}
+
+.atlas-card-engine {
+  font-size: 8px;
+  color: #82949b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 9px;
+}
+
 .atlas-leverage-card h4 {
   font-size: 14px;
-  margin: 12px 0 7px;
+  margin: 9px 0 7px;
+  padding-right: 42px;
 }
 
 .atlas-leverage-card p {
   font-size: 11px;
   color: #6c7f88;
   line-height: 1.5;
+}
+
+.atlas-recommendation-metrics {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 8px;
+  color: #8a9aa2;
+}
+
+.atlas-recommendation-metrics strong {
+  color: #29414d;
 }
 
 .atlas-nextline {
@@ -306,6 +467,13 @@
   color: #0f7779;
 }
 
+.atlas-empty-recommendations {
+  padding: 25px;
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: #71848c;
+}
+
 .atlas-bottom-grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -313,66 +481,172 @@
   margin-top: 14px;
 }
 
+.atlas-bottom-grid-v2 {
+  grid-template-columns: 1fr 1fr;
+}
+
 .atlas-compact-card {
   padding: 18px;
 }
 
-.atlas-agenda-item {
+.atlas-judgment-block {
+  background: #f7fafb;
+  border: 1px solid #e5ecee;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.atlas-judgment-block small {
+  display: block;
+  font-size: 8px;
+  font-weight: 800;
+  color: #0aa6a6;
+  letter-spacing: 0.11em;
+}
+
+.atlas-judgment-block strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.atlas-judgment-block p {
+  font-size: 10px;
+  color: #657b84;
+  line-height: 1.5;
+  margin: 5px 0 0;
+}
+
+.atlas-judgment-row {
   display: grid;
-  grid-template-columns: 78px 1fr auto;
-  gap: 12px;
-  padding: 12px 0;
+  grid-template-columns: 78px 1fr;
+  gap: 10px;
+  padding: 11px 0;
   border-bottom: 1px solid #edf1f2;
 }
 
-.atlas-agenda-time {
-  font-size: 9px;
-  color: #8c9aa2;
-  font-weight: 700;
+.atlas-judgment-row:last-child {
+  border-bottom: 0;
 }
 
-.atlas-agenda-title {
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.atlas-agenda-sub {
-  font-size: 10px;
-  color: #81919a;
-  margin-top: 2px;
-}
-
-.atlas-agenda-pill {
+.atlas-judgment-row span {
   font-size: 8px;
-  border: 1px solid #dce6e8;
-  border-radius: 999px;
-  padding: 4px 7px;
-  color: #72858e;
-  height: fit-content;
+  color: #8a9aa2;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.atlas-judgment-row p {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #38515b;
+}
+
+.atlas-conflict-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-bottom: 1px solid #edf1f2;
+  padding: 11px 0;
+  text-align: left;
+  color: inherit;
+}
+
+.atlas-conflict-item > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.atlas-conflict-item strong {
+  font-size: 9px;
+}
+
+.atlas-conflict-item p {
+  margin: 5px 0 0 13px;
+  font-size: 9px;
+  color: #71848c;
+  line-height: 1.45;
+}
+
+.atlas-conflict-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  background: #8b9aa1;
+}
+
+.atlas-conflict-dot.medium {
+  background: #c99a48;
+}
+
+.atlas-conflict-dot.high,
+.atlas-conflict-dot.critical {
+  background: #c7585c;
+}
+
+.atlas-no-conflict {
+  margin-top: 13px;
+  background: #eff9f6;
+  border: 1px solid #d9eee7;
+  border-radius: 11px;
+  padding: 13px;
+}
+
+.atlas-no-conflict strong {
+  display: block;
+  font-size: 11px;
+  color: #24725f;
+}
+
+.atlas-no-conflict p {
+  font-size: 9px;
+  color: #69837b;
+  margin: 4px 0 0;
+}
+
+.atlas-dependency-strip {
+  margin-top: 14px;
+  padding: 18px;
+}
+
+.atlas-waiting-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .atlas-waiting-item {
-  padding: 11px 0;
-  border-bottom: 1px solid #edf1f2;
+  padding: 11px;
+  border: 1px solid #edf1f2;
+  border-radius: 10px;
+  background: #fafcfc;
 }
 
 .atlas-waiting-top {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .atlas-waiting-top strong {
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .atlas-waiting-top span {
-  font-size: 9px;
+  font-size: 8px;
   color: #b66b42;
 }
 
 .atlas-waiting-item p {
-  font-size: 10px;
+  font-size: 9px;
   color: #7b8d95;
+  line-height: 1.45;
+  margin: 5px 0 0;
 }
 
 .atlas-empty {
@@ -409,11 +683,16 @@
 
 @media (max-width: 1100px) {
   .atlas-hero-grid,
-  .atlas-bottom-grid {
+  .atlas-bottom-grid,
+  .atlas-bottom-grid-v2 {
     grid-template-columns: 1fr;
   }
 
   .atlas-leverage-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .atlas-waiting-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -432,11 +711,16 @@
   }
 
   .atlas-reason-grid,
-  .atlas-leverage-grid {
+  .atlas-leverage-grid,
+  .atlas-waiting-grid {
     grid-template-columns: 1fr;
   }
 
   .atlas-live-domain-strip {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .atlas-tradeoff-strip {
+    grid-template-columns: 1fr;
   }
 }
