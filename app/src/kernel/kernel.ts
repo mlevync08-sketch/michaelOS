@@ -48,6 +48,8 @@ import {
   buildMemoryIntelligence,
 } from "../engine/memoryIntelligenceEngine"
 
+import { buildExecutiveRecommendationGraph } from "../engine/recommendationGraph"
+
 export type KernelInput = {
   projects: Project[]
   actions: ActionItem[]
@@ -370,6 +372,18 @@ export function runMichaelOSKernel(
         input.relationships,
     })
 
+    const recommendationGraph =
+  buildExecutiveRecommendationGraph({
+    actionIntelligence,
+    decisionIntelligence,
+    dependencyIntelligence,
+    relationshipIntelligence,
+    memoryIntelligence,
+    capacityIntelligence,
+    weeklyReviewIntelligence,
+    projects: input.projects,
+  })
+
   return {
     generatedAt:
       new Date().toISOString(),
@@ -392,7 +406,8 @@ export function runMichaelOSKernel(
     weeklyReviewIntelligence,
     capacityIntelligence,
     memoryIntelligence,
-
+    recommendationGraph,
+    
     projects:
       input.projects,
 
