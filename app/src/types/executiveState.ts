@@ -9,6 +9,7 @@ import type { WeeklyReviewIntelligence } from "../engine/weeklyReviewEngine"
 import type { CapacityIntelligence } from "../engine/capacityEngine"
 import type { MemoryIntelligence } from "../engine/memoryIntelligenceEngine"
 import type { ExecutiveRecommendationGraph } from "./recommendationGraph"
+import type { ExecutiveCoordinatorOutput } from "./executiveCoordinator"
 
 export type ActionItem = {
   id: string
@@ -187,6 +188,7 @@ export type ExecutiveState = {
   capacityIntelligence: CapacityIntelligence
   memoryIntelligence: MemoryIntelligence
   recommendationGraph: ExecutiveRecommendationGraph
+  executiveCoordinator: ExecutiveCoordinatorOutput
 
   projects: Project[]
   actions: ActionItem[]

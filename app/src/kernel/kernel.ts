@@ -50,6 +50,8 @@ import {
 
 import { buildExecutiveRecommendationGraph } from "../engine/recommendationGraph"
 
+import { coordinateExecutiveIntelligence } from "../engine/executiveCoordinator"
+
 export type KernelInput = {
   projects: Project[]
   actions: ActionItem[]
@@ -384,6 +386,16 @@ export function runMichaelOSKernel(
     projects: input.projects,
   })
 
+  const executiveCoordinator =
+  coordinateExecutiveIntelligence({
+    recommendationGraph,
+    capacity: {
+      state: capacityIntelligence.state,
+      focusCapacityMinutes:
+        capacityIntelligence.focusCapacityMinutes,
+    },
+  })
+
   return {
     generatedAt:
       new Date().toISOString(),
@@ -407,7 +419,8 @@ export function runMichaelOSKernel(
     capacityIntelligence,
     memoryIntelligence,
     recommendationGraph,
-    
+    executiveCoordinator,
+
     projects:
       input.projects,
 
